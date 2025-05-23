@@ -1,6 +1,15 @@
 "use client"
 
 
+import React, { useEffect, useRef, Suspense, useState, useMemo } from 'react'
+import dynamic from 'next/dynamic'
+import Link from 'next/link'
+
+import { Canvas, useLoader, useFrame } from '@react-three/fiber'
+import { OrbitControls, Html, useProgress } from '@react-three/drei'
+import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader'
+import * as THREE from 'three'
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -8,17 +17,66 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Progress } from "@/components/ui/progress"
 import { AlertTriangle, Thermometer, Users, Zap, Eye, TrendingUp, Activity, Wifi } from "lucide-react"
-import Link from "next/link"
+
 import { RoomVisualization } from "@/components/room-visualization"
 import { EnergyChart } from "@/components/energy-chart"
 import { TemperatureChart } from "@/components/temperature-chart"
 import { OccupancyChart } from "@/components/occupancy-chart"
-import dynamic from 'next/dynamic';
-import React, { useEffect, useRef, Suspense , useState } from 'react';
-import { Canvas, useLoader } from '@react-three/fiber';
-import { OrbitControls, Html, useProgress } from '@react-three/drei';
-import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader';
-import * as THREE from 'three';
+
+
+function HeatmapCloth({ width = 3, height = 3, segmentsX = 30, segmentsY = 30, heatData }) {
+  const meshRef = useRef()
+
+  // Create plane geometry with vertex colors
+  const geometry = useMemo(() => {
+    const geom = new THREE.PlaneGeometry(width, height, segmentsX, segmentsY)
+    
+    // Create a color attribute for vertices
+    const colors = []
+
+    // Initialize all colors blue
+    for (let i = 0; i < geom.attributes.position.count; i++) {
+      colors.push(0, 0, 1) // blue
+    }
+
+    geom.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3))
+
+    return geom
+  }, [width, height, segmentsX, segmentsY])
+
+  // Update colors based on heatData every frame (or when heatData changes)
+  useFrame(() => {
+    if (!meshRef.current) return
+    const colors = meshRef.current.geometry.attributes.color.array
+
+    // heatData should be a 2D array or function giving heat per vertex index
+    for (let i = 0; i < colors.length / 3; i++) {
+      // Simple example: heatData is an array matching vertex count
+      const heat = heatData ? heatData[i] ?? 0 : 0
+
+      // Map heat (0 to 1) to color blue → red
+      const color = new THREE.Color()
+      color.setHSL((1 - heat) * 0.7, 1, 0.5)  // from blue(h=0.7) to red(h=0)
+
+      colors[i * 3] = color.r
+      colors[i * 3 + 1] = color.g
+      colors[i * 3 + 2] = color.b
+    }
+
+    meshRef.current.geometry.attributes.color.needsUpdate = true
+  })
+
+  return (
+    <mesh
+      ref={meshRef}
+      geometry={geometry}
+      position={[0, 0, 0.01]} // slightly above the model surface
+      rotation={[-Math.PI / 2, 0, 0]} // flat on XZ plane
+    >
+      <meshBasicMaterial vertexColors={true} side={THREE.DoubleSide} transparent opacity={0.8} />
+    </mesh>
+  )
+}
 
 // Mock data with more realistic values
 const mockRooms = [
@@ -124,15 +182,15 @@ const mockAlerts = [
     room: "Conference Room Alpha",
     severity: "low",
   },
-  {
-    id: "alert-004",
-    type: "warning",
-    title: "Energy Spike",
-    message: "Unusual energy consumption detected in Innovation Lab Beta",
-    timestamp: "22 minutes ago",
-    room: "Innovation Lab Beta",
-    severity: "medium",
-  },
+  // {
+  //   id: "alert-004",
+  //   type: "warning",
+  //   title: "Energy Spike",
+  //   message: "Unusual energy consumption detected in Innovation Lab Beta",
+  //   timestamp: "22 minutes ago",
+  //   room: "Innovation Lab Beta",
+  //   severity: "medium",
+  // },
 ]
 
 
@@ -163,42 +221,35 @@ function Model({ path }) {
       object={obj}
       scale={[0.000074, 0.000074, 0.000074]} // Adjust for Blender export scale
       position={[0, -31.951, 0]}             // Y-offset from Blender
-      rotation={[Math.PI / 2, 0, 0]}
+      rotation={[0, 0, 0]}
          // Rotate model upright
     />
   );
 }
 
 function ThreeDViewer() {
+  // Example: generate fake heat data array to simulate heatmap
+  const heatData = React.useMemo(() => {
+    const count = 31 * 31 // vertices in a 30x30 grid
+    return Array.from({ length: count }, () => Math.random())
+  }, [])
+
   return (
-    <div
-      style={{
-        width: '600px',
-        height: '400px',
-        margin: '40px auto',
-        border: '2px solid #ccc',
-        borderRadius: '8px',
-        overflow: 'hidden',
-        boxShadow: '0 4px 10px rgba(0,0,0,0.1)',
-      }}
-    >
-      <Canvas camera={{ position: [0, 0, 5], fov: 75 }}>
+    <div style={{ width: '600px', height: '400px', margin: '40px auto', border: '2px solid #ccc', borderRadius: '8px', overflow: 'hidden', boxShadow: '0 4px 10px rgba(0,0,0,0.1)' }}>
+      <Canvas camera={{ position: [0, 2, 5], fov: 75 }}>
         <ambientLight intensity={0.5} />
         <directionalLight position={[10, 10, 5]} intensity={1.5} />
         <Suspense fallback={<Loader />}>
           <Model path="/model.obj" />
+          {/* <HeatmapCloth heatData={heatData} width={3} height={3} segmentsX={30} segmentsY={30} /> */}
         </Suspense>
-        <OrbitControls
-          target={[0, 0, 0]}
-          minAzimuthAngle={-Math.PI / 2}
-          maxAzimuthAngle={Math.PI / 2}
-          minPolarAngle={Math.PI / 2}
-          maxPolarAngle={Math.PI}
-        />
+        <OrbitControls target={[0, 0, 0]} minPolarAngle={0} maxPolarAngle={Math.PI / 2} />
       </Canvas>
     </div>
-  );
+  )
 }
+
+
 
 
 
@@ -426,131 +477,125 @@ export default function Dashboard() {
                 <EnergyChart />
               </CardContent>
             </Card>
+                {/* Analytics Section */}
+      
+<div className="grid grid-cols-1 gap-6">
+  <Card className="glass-card neon-glow flex flex-col justify-center items-center text-center">
+    <CardHeader>
+      <CardTitle className="text-white">Temperature Trends</CardTitle>
+      <CardDescription className="text-gray-400">Real-time temperature monitoring</CardDescription>
+    </CardHeader>
+    <CardContent className="w-full flex justify-center items-center">
+      <TemperatureChart />
+    </CardContent>
+  </Card>
+
+
+        {/* <Card className="glass-card neon-glow flex flex-col justify-center items-center text-center">
+          <CardHeader>
+            <CardTitle className="text-white">Occupancy Patterns</CardTitle>
+            <CardDescription className="text-gray-400">Daily occupancy distribution</CardDescription>
+          </CardHeader>
+          <CardContent className="w-full flex justify-center items-center">
+            <OccupancyChart />
+          </CardContent>
+        </Card> */}
+      </div>
           </div>
 
-          {/* Right Column - Rooms and Visualization */}
-          <div className="xl:col-span-2 space-y-6">
-            <Tabs defaultValue="rooms" className="w-full">
-              <TabsList className="glass-card-strong border border-white/10">
-                <TabsTrigger value="rooms" className="data-[state=active]:bg-white/20">
-                  Room Overview
-                </TabsTrigger>
-                <TabsTrigger value="charts" className="data-[state=active]:bg-white/20">
-                  Analytics
-                </TabsTrigger>
-                <TabsTrigger value="3d" className="data-[state=active]:bg-white/20">
-                  3D Visualization
-                </TabsTrigger>
-              </TabsList>
 
-              <TabsContent value="rooms" className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {rooms.map((room) => (
-                    <Card
-                      key={room.id}
-                      className={`glass-card cursor-pointer transition-all duration-300 hover:scale-105 ${
-                        selectedRoom?.id === room.id ? "neon-glow ring-2 ring-purple-500/50" : ""
-                      } ${room.status === "critical" ? "alert-glow" : room.status === "warning" ? "warning-glow" : "success-glow"}`}
-                      onClick={() => setSelectedRoom(room)}
-                    >
-                      <CardHeader className="pb-3">
-                        <div className="flex items-center justify-between">
-                          <CardTitle className="text-lg text-white">{room.name}</CardTitle>
-                          <Badge variant={getStatusColor(room.status) as any} className="capitalize">
-                            {room.status}
-                          </Badge>
-                        </div>
-                      </CardHeader>
-                      <CardContent className="space-y-4">
-                        <div className="grid grid-cols-2 gap-4">
-                          <div className="space-y-1">
-                            <div className="flex items-center gap-2">
-                              <Thermometer className="h-4 w-4 text-blue-400" />
-                              <span className="text-sm text-gray-400">Temperature</span>
-                            </div>
-                            <p className="text-xl font-bold text-white">{room.temperature.toFixed(1)}°C</p>
-                          </div>
-                          <div className="space-y-1">
-                            <div className="flex items-center gap-2">
-                              <Users className="h-4 w-4 text-green-400" />
-                              <span className="text-sm text-gray-400">Occupancy</span>
-                            </div>
-                            <p className="text-xl font-bold text-white">
-                              {room.occupancy}/{room.maxOccupancy}
-                            </p>
-                          </div>
-                        </div>
+  {/* Main Content Area */}
+  <div className="xl:col-span-2 space-y-6">
 
-                        <div className="space-y-2">
-                          <div className="flex justify-between text-sm">
-                            <span className="text-gray-400">Energy Usage</span>
-                            <span className="text-white font-medium">{room.energyUsage.toFixed(1)} kW</span>
-                          </div>
-                          <div className="flex justify-between text-sm">
-                            <span className="text-gray-400">Efficiency</span>
-                            <span className="text-white font-medium">{room.efficiency}%</span>
-                          </div>
-                          <Progress value={room.efficiency} className="h-2 bg-gray-800" />
-                        </div>
+    {/* Room Overview */}
+    
 
-                        <Link href={`/room/${room.id}`}>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="w-full glass-card border-white/20 text-white hover:bg-white/10"
-                          >
-                            <Eye className="h-4 w-4 mr-2" />
-                            View Details
-                          </Button>
-                        </Link>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              </TabsContent>
 
-              <TabsContent value="charts" className="space-y-6">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  <Card className="glass-card neon-glow">
-                    <CardHeader>
-                      <CardTitle className="text-white">Temperature Trends</CardTitle>
-                      <CardDescription className="text-gray-400">Real-time temperature monitoring</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <TemperatureChart />
-                    </CardContent>
-                  </Card>
-
-                  <Card className="glass-card neon-glow">
-                    <CardHeader>
-                      <CardTitle className="text-white">Occupancy Patterns</CardTitle>
-                      <CardDescription className="text-gray-400">Daily occupancy distribution</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <OccupancyChart />
-                    </CardContent>
-                  </Card>
-                </div>
-              </TabsContent>
-
-              <TabsContent value="3d">
-                <Card className="glass-card neon-glow">
-                  <CardHeader>
-                    <CardTitle className="text-white">3D Room Visualization</CardTitle>
-                    <CardDescription className="text-gray-400">
-                      Interactive 3D model of {selectedRoom?.name}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="p-0">
-                    <div className="h-96 w-full rounded-lg overflow-hidden">
-                      <Viewer />
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-            </Tabs>
+    {/* 3D Visualization Section */}
+    <section>
+      <Card className="glass-card neon-glow flex flex-col items-center text-center">
+        <CardHeader>
+          <CardTitle className="text-white">Interactive 3D model of {selectedRoom?.name}</CardTitle>
+          <CardDescription className="text-gray-400">Explore the room in 3D</CardDescription>
+        </CardHeader>
+        <CardContent className="w-full flex justify-center items-center p-0">
+          <div className="h-96 w-full max-w-4xl rounded-lg overflow-hidden">
+            <Viewer />
           </div>
-        </div>
+        </CardContent>
+      </Card>
+    </section>
+
+    <section>
+      <h2 className="text-xl font-semibold text-white mb-4 text-center">Room Overview</h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {rooms.map((room) => (
+          <Card
+            key={room.id}
+            className={`glass-card cursor-pointer transition-all duration-300 hover:scale-105 ${
+              selectedRoom?.id === room.id ? "neon-glow ring-2 ring-purple-500/50" : ""
+            } ${room.status === "critical" ? "alert-glow" : room.status === "warning" ? "warning-glow" : "success-glow"}`}
+            onClick={() => setSelectedRoom(room)}
+          >
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-lg text-white">{room.name}</CardTitle>
+                <Badge variant={getStatusColor(room.status) as any} className="capitalize">
+                  {room.status}
+                </Badge>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <Thermometer className="h-4 w-4 text-blue-400" />
+                    <span className="text-sm text-gray-400">Temperature</span>
+                  </div>
+                  <p className="text-xl font-bold text-white">{room.temperature.toFixed(1)}°C</p>
+                </div>
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <Users className="h-4 w-4 text-green-400" />
+                    <span className="text-sm text-gray-400">Occupancy</span>
+                  </div>
+                  <p className="text-xl font-bold text-white">
+                    {room.occupancy}/{room.maxOccupancy}
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-400">Energy Usage</span>
+                  <span className="text-white font-medium">{room.energyUsage.toFixed(1)} kW</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-400">Efficiency</span>
+                  <span className="text-white font-medium">{room.efficiency}%</span>
+                </div>
+                <Progress value={room.efficiency} className="h-2 bg-gray-800" />
+              </div>
+
+              <Link href={`/room/${room.id}`}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full glass-card border-white/20 text-white hover:bg-white/10"
+                >
+                  <Eye className="h-4 w-4 mr-2" />
+                  View Details
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    </section>
+
+
+  </div>
+</div>
       </div>
     </div>
   )
