@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -13,6 +13,12 @@ import { RoomVisualization } from "@/components/room-visualization"
 import { EnergyChart } from "@/components/energy-chart"
 import { TemperatureChart } from "@/components/temperature-chart"
 import { OccupancyChart } from "@/components/occupancy-chart"
+import dynamic from 'next/dynamic';
+import React, { useEffect, useRef, Suspense , useState } from 'react';
+import { Canvas, useLoader } from '@react-three/fiber';
+import { OrbitControls, Html, useProgress } from '@react-three/drei';
+import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader';
+import * as THREE from 'three';
 
 // Mock data with more realistic values
 const mockRooms = [
@@ -129,6 +135,73 @@ const mockAlerts = [
   },
 ]
 
+
+// Prevent server-side rendering
+const Viewer = dynamic(() => Promise.resolve(ThreeDViewer), { ssr: false });
+
+function Loader() {
+  const { progress } = useProgress();
+  return <Html center>{progress.toFixed(0)} % loaded</Html>;
+}
+
+function Model({ path }) {
+  const obj = useLoader(OBJLoader, path);
+  const ref = useRef();
+
+  useEffect(() => {
+    if (ref.current) {
+      // Center the object
+      const box = new THREE.Box3().setFromObject(ref.current);
+      const center = box.getCenter(new THREE.Vector3());
+      ref.current.position.sub(center);
+    }
+  }, [obj]);
+
+  return (
+    <primitive
+      ref={ref}
+      object={obj}
+      scale={[0.000074, 0.000074, 0.000074]} // Adjust for Blender export scale
+      position={[0, -31.951, 0]}             // Y-offset from Blender
+      rotation={[Math.PI / 2, 0, 0]}
+         // Rotate model upright
+    />
+  );
+}
+
+function ThreeDViewer() {
+  return (
+    <div
+      style={{
+        width: '600px',
+        height: '400px',
+        margin: '40px auto',
+        border: '2px solid #ccc',
+        borderRadius: '8px',
+        overflow: 'hidden',
+        boxShadow: '0 4px 10px rgba(0,0,0,0.1)',
+      }}
+    >
+      <Canvas camera={{ position: [0, 0, 5], fov: 75 }}>
+        <ambientLight intensity={0.5} />
+        <directionalLight position={[10, 10, 5]} intensity={1.5} />
+        <Suspense fallback={<Loader />}>
+          <Model path="/model.obj" />
+        </Suspense>
+        <OrbitControls
+          target={[0, 0, 0]}
+          minAzimuthAngle={-Math.PI / 2}
+          maxAzimuthAngle={Math.PI / 2}
+          minPolarAngle={Math.PI / 2}
+          maxPolarAngle={Math.PI}
+        />
+      </Canvas>
+    </div>
+  );
+}
+
+
+
 export default function Dashboard() {
   const [rooms, setRooms] = useState(mockRooms)
   const [alerts, setAlerts] = useState(mockAlerts)
@@ -162,6 +235,7 @@ export default function Dashboard() {
         return "outline"
     }
   }
+
 
   const getAlertIcon = (type: string) => {
     switch (type) {
@@ -469,11 +543,7 @@ export default function Dashboard() {
                   </CardHeader>
                   <CardContent className="p-0">
                     <div className="h-96 w-full rounded-lg overflow-hidden">
-                      <RoomVisualization
-                        temperature={selectedRoom?.temperature || 22}
-                        occupancy={selectedRoom?.occupancy || 0}
-                        maxOccupancy={selectedRoom?.maxOccupancy || 10}
-                      />
+                      <Viewer />
                     </div>
                   </CardContent>
                 </Card>
