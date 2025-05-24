@@ -198,28 +198,40 @@ const mockAlerts = [
 // Prevent server-side rendering
 const Viewer = dynamic(() => Promise.resolve(ThreeDViewer), { ssr: false });
 
-
 function Pinpoint({
   position,
+  size = [0.5, 0.5, 0.5], // width, height, depth of the cuboid hitbox
   label,
   targetUrl,
 }: {
   position: [number, number, number];
+  size?: [number, number, number];
   label?: string;
   targetUrl: string;
 }) {
   const router = useRouter();
 
   return (
-    <group position={position} onClick={() => router.push(targetUrl)} style={{ cursor: 'pointer' }}>
-      {/* Visual Sphere */}
-      <mesh>
+    <group position={position}>
+      {/* Invisible clickable box */}
+      <mesh
+        onClick={() => router.push(targetUrl)}
+        scale={size}
+        position={[0, 0, 0]}
+      >
+        <boxGeometry args={[1, 1, 1]} />
+        <meshBasicMaterial transparent opacity={0} />
+      </mesh>
+
+      {/* Optional visible indicator */}
+      <mesh position={[0, size[1] / 2 + 0.05, 0]}>
         <sphereGeometry args={[0.05, 16, 16]} />
         <meshStandardMaterial color="red" />
       </mesh>
-      {/* Label */}
+
+      {/* Label above the hitbox */}
       {label && (
-        <Html distanceFactor={10}>
+        <Html position={[0, size[1] + 0.1, 0]} distanceFactor={2}>
           <div
             style={{
               background: 'white',
@@ -236,6 +248,7 @@ function Pinpoint({
     </group>
   );
 }
+
 
 
 
@@ -283,10 +296,11 @@ function ThreeDViewer() {
         <Suspense fallback={<Loader />}>
           <Model path="/model.obj" />
 
-          {/* Clickable Pinpoints */}
-          <Pinpoint position={[0, 0, 0]} label="Vstupná hala" targetUrl="/room/room-001" />
-          <Pinpoint position={[1, 0.5, -1]} label="zasadacia miestnosť" targetUrl="/room/room-001" />
-          <Pinpoint position={[-1, 1, 1]} label="Room 003" targetUrl="/room/room-001" />
+                    {/* Clickable Pinpoints */}
+          <Pinpoint position={[0, -0.3, 0]} size={[0.6, 0.5, 0.6]} label="Vstupná hala" targetUrl="/room/room-001" />
+          <Pinpoint position={[1, -0.3, -1]} size={[0.5, 0.5, 0.5]} label="Zasadacia miestnosť" targetUrl="/room/room-002" />
+          <Pinpoint position={[-1, 0.25, 1]} size={[0.4, 0.4, 0.4]} label="Laboratórium" targetUrl="/room/room-003" />
+
         </Suspense>
         <OrbitControls target={[0, 0, 0]} minPolarAngle={0} maxPolarAngle={Math.PI / 2} />
       </Canvas>
