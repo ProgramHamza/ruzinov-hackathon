@@ -13,8 +13,11 @@ import { OccupancyChart } from "@/components/occupancy-chart"
 import { EfficiencyChart } from "@/components/efficiency-chart"
 import { CostAnalysisChart } from "@/components/cost-analysis-chart"
 import { PredictiveChart } from "@/components/predictive-chart"
+import { useTranslation } from '@/lib/translations/TranslationContext'
 
 export default function AnalyticsPage() {
+  const { t } = useTranslation()
+  
   const energyData = {
     totalConsumption: 156.7,
     previousMonth: 178.3,
@@ -31,12 +34,12 @@ export default function AnalyticsPage() {
   }
 
   const roomEfficiency = [
-    { name: "Conference Room Alpha", efficiency: 94, cost: 234.5, trend: "up" },
-    { name: "Innovation Lab Beta", efficiency: 78, cost: 456.8, trend: "down" },
-    { name: "Research Center Gamma", efficiency: 91, cost: 345.2, trend: "up" },
-    { name: "Data Center Core", efficiency: 67, cost: 1234.6, trend: "stable" },
-    { name: "Executive Lounge", efficiency: 96, cost: 189.3, trend: "up" },
-    { name: "Training Center Delta", efficiency: 72, cost: 567.4, trend: "down" },
+    { name: "Vstupná hala", efficiency: 94, cost: 234.5, trend: "up" },
+    { name: "Zasadacia miestnosť", efficiency: 78, cost: 456.8, trend: "down" },
+    { name: "Kancelária starostu", efficiency: 91, cost: 345.2, trend: "up" },
+    { name: "Serverová miestnosť", efficiency: 67, cost: 1234.6, trend: "stable" },
+    { name: "Zastupiteľská sála", efficiency: 96, cost: 789.3, trend: "up" },
+    { name: "Kancelárske priestory", efficiency: 72, cost: 567.4, trend: "down" },
   ]
 
   return (
@@ -52,25 +55,25 @@ export default function AnalyticsPage() {
               </div>
               <div>
                 <h1 className="text-2xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-black">
-                  Digital Twin Control System
+                  Systém riadenia digitálneho dvojčaťa
                 </h1>
-                <p className="text-sm text-gray-400">Real-time facility management</p>
+                <p className="text-sm text-gray-400">Správa zariadení v reálnom čase</p>
               </div>
             </div>
             <nav className="flex space-x-2">
               <Link href="/">
                 <Button variant="ghost" className="text-black hover:bg-white/10">
-                  Dashboard
+                  {t('dashboard')}
                 </Button>
               </Link>
               <Link href="/sensors">
                 <Button variant="ghost" className="text-black hover:bg-white/10">
-                  Sensors
+                  {t('sensors')}
                 </Button>
               </Link>
               <Link href="/analytics">
                 <Button variant="ghost" className="text-black hover:bg-white/10">
-                  Analytics
+                  {t('analytics')}
                 </Button>
               </Link>
             </nav>
@@ -86,11 +89,11 @@ export default function AnalyticsPage() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-400">Energy Saved</p>
+                  <p className="text-sm text-gray-400">Ušetrená energia</p>
                   <p className="text-3xl font-bold text-black">{energyData.savings} kWh</p>
                   <div className="flex items-center gap-1 mt-1">
                     <TrendingDown className="h-3 w-3 text-green-400" />
-                    <span className="text-xs text-green-400">12.1% vs last month</span>
+                    <span className="text-xs text-green-400">12.1% oproti minulému mesiacu</span>
                   </div>
                 </div>
                 <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center">
@@ -104,11 +107,11 @@ export default function AnalyticsPage() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-400">Cost Savings</p>
+                  <p className="text-sm text-gray-400">Úspora nákladov</p>
                   <p className="text-3xl font-bold text-black">${energyData.costSavings.toFixed(0)}</p>
                   <div className="flex items-center gap-1 mt-1">
                     <TrendingDown className="h-3 w-3 text-green-400" />
-                    <span className="text-xs text-green-400">8.7% vs last month</span>
+                    <span className="text-xs text-green-400">8.7% oproti minulému mesiacu</span>
                   </div>
                 </div>
                 <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-yellow-500 to-orange-500 flex items-center justify-center">
@@ -122,11 +125,11 @@ export default function AnalyticsPage() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-400">System Efficiency</p>
+                  <p className="text-sm text-gray-400">Efektivita systému</p>
                   <p className="text-3xl font-bold text-black">{energyData.efficiency}%</p>
                   <div className="flex items-center gap-1 mt-1">
                     <TrendingUp className="h-3 w-3 text-green-400" />
-                    <span className="text-xs text-green-400">3.2% improvement</span>
+                    <span className="text-xs text-green-400">3.2% zlepšenie</span>
                   </div>
                 </div>
                 <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
@@ -143,7 +146,7 @@ export default function AnalyticsPage() {
                   <p className="text-sm text-gray-400">ROI</p>
                   <p className="text-3xl font-bold text-black">{financialData.roi}%</p>
                   <div className="flex items-center gap-1 mt-1">
-                    <span className="text-xs text-blue-400">{financialData.paybackPeriod} month payback</span>
+                    <span className="text-xs text-blue-400">Doba návratnosti {financialData.paybackPeriod} mesiacov</span>
                   </div>
                 </div>
                 <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
@@ -157,16 +160,16 @@ export default function AnalyticsPage() {
         <Tabs defaultValue="overview" className="w-full">
           <TabsList className="glass-card-strong border border-white/10 mb-6">
             <TabsTrigger value="overview" className="data-[state=active]:bg-white/20">
-              Overview
+              {t('analytics.overview')}
             </TabsTrigger>
             <TabsTrigger value="energy" className="data-[state=active]:bg-white/20">
-              Energy Analysis
+              {t('analytics.energyAnalysis')}
             </TabsTrigger>
             <TabsTrigger value="financial" className="data-[state=active]:bg-white/20">
-              Financial
+              {t('analytics.financial')}
             </TabsTrigger>
             <TabsTrigger value="predictive" className="data-[state=active]:bg-white/20">
-              Predictive
+              {t('analytics.predictive')}
             </TabsTrigger>
           </TabsList>
 
@@ -174,8 +177,8 @@ export default function AnalyticsPage() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <Card className="glass-card neon-glow">
                 <CardHeader>
-                  <CardTitle className="text-black">Energy Consumption Trends</CardTitle>
-                  <CardDescription className="text-gray-400">24-hour energy usage pattern</CardDescription>
+                  <CardTitle className="text-black">{t('analytics.energyConsumption')}</CardTitle>
+                  <CardDescription className="text-gray-400">24-hodinový vzor spotreby energie</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <EnergyChart />
@@ -184,8 +187,8 @@ export default function AnalyticsPage() {
 
               <Card className="glass-card neon-glow">
                 <CardHeader>
-                  <CardTitle className="text-black">Temperature Distribution</CardTitle>
-                  <CardDescription className="text-gray-400">Multi-room temperature monitoring</CardDescription>
+                  <CardTitle className="text-black">{t('analytics.temperatureDistribution')}</CardTitle>
+                  <CardDescription className="text-gray-400">Monitorovanie teploty vo viacerých miestnostiach</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <TemperatureChart />
@@ -194,8 +197,8 @@ export default function AnalyticsPage() {
 
               <Card className="glass-card neon-glow">
                 <CardHeader>
-                  <CardTitle className="text-black">Occupancy Analysis</CardTitle>
-                  <CardDescription className="text-gray-400">Current vs capacity utilization</CardDescription>
+                  <CardTitle className="text-black">{t('analytics.occupancyAnalysis')}</CardTitle>
+                  <CardDescription className="text-gray-400">Aktuálne vs. kapacitné využitie</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <OccupancyChart />
@@ -204,8 +207,8 @@ export default function AnalyticsPage() {
 
               <Card className="glass-card neon-glow">
                 <CardHeader>
-                  <CardTitle className="text-black">Efficiency Metrics</CardTitle>
-                  <CardDescription className="text-gray-400">System performance indicators</CardDescription>
+                  <CardTitle className="text-black">{t('analytics.efficiencyMetrics')}</CardTitle>
+                  <CardDescription className="text-gray-400">Ukazovatele výkonu systému</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <EfficiencyChart />
@@ -216,9 +219,9 @@ export default function AnalyticsPage() {
             {/* Room Performance Table */}
             <Card className="glass-card-strong">
               <CardHeader>
-                <CardTitle className="text-black">Room Performance Overview</CardTitle>
+                <CardTitle className="text-black">{t('analytics.roomPerformance')}</CardTitle>
                 <CardDescription className="text-gray-400">
-                  Detailed efficiency and cost analysis by room
+                  Detailná analýza efektivity a nákladov podľa miestností
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -234,7 +237,7 @@ export default function AnalyticsPage() {
                             }
                             className="text-xs"
                           >
-                            {room.efficiency}% efficient
+                            {room.efficiency}% efektívne
                           </Badge>
                           {room.trend === "up" && <TrendingUp className="h-4 w-4 text-green-400" />}
                           {room.trend === "down" && <TrendingDown className="h-4 w-4 text-red-400" />}
@@ -243,15 +246,15 @@ export default function AnalyticsPage() {
                       </div>
                       <div className="grid grid-cols-3 gap-4">
                         <div>
-                          <p className="text-sm text-gray-400">Efficiency</p>
+                          <p className="text-sm text-gray-400">{t('efficiency')}</p>
                           <Progress value={room.efficiency} className="h-2 bg-gray-800 mt-1" />
                         </div>
                         <div>
-                          <p className="text-sm text-gray-400">Monthly Cost</p>
+                          <p className="text-sm text-gray-400">{t('analytics.monthlyCost')}</p>
                           <p className="text-lg font-bold text-black">${room.cost}</p>
                         </div>
                         <div>
-                          <p className="text-sm text-gray-400">Status</p>
+                          <p className="text-sm text-gray-400">{t('analytics.performanceStatus')}</p>
                           <p className="text-sm text-black capitalize">{room.trend}</p>
                         </div>
                       </div>

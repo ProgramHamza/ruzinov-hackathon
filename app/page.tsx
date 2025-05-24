@@ -1,10 +1,10 @@
 "use client"
 
-
 import React, { useEffect, useRef, Suspense, useState, useMemo } from 'react'
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation'
+import { useTranslation } from '@/lib/translations/TranslationContext'
 
 import { Canvas, useLoader, useFrame } from '@react-three/fiber'
 import { OrbitControls, Html, useProgress } from '@react-three/drei'
@@ -79,77 +79,77 @@ function HeatmapCloth({ width = 3, height = 3, segmentsX = 30, segmentsY = 30, h
   )
 }
 
-// Mock data with more realistic values
+// Update mockRooms with Slovak names
 const mockRooms = [
   {
     id: "room-001",
-    name: "Conference Room Alpha",
+    name: "Vstupná hala",
     temperature: 22.5,
-    occupancy: 8,
-    maxOccupancy: 12,
+    occupancy: 12,
+    maxOccupancy: 30,
     humidity: 45,
-    airQuality: "Excellent",
+    airQuality: "Výborná",
     energyUsage: 2.3,
     status: "optimal",
     efficiency: 94,
   },
   {
     id: "room-002",
-    name: "Innovation Lab Beta",
-    temperature: 24.1,
+    name: "Zasadacia miestnosť",
+    temperature: 23.1,
     occupancy: 15,
     maxOccupancy: 20,
-    humidity: 52,
-    airQuality: "Good",
+    humidity: 48,
+    airQuality: "Dobrá",
     energyUsage: 3.1,
     status: "warning",
     efficiency: 78,
   },
   {
     id: "room-003",
-    name: "Research Center Gamma",
-    temperature: 19.8,
+    name: "Kancelária starostu",
+    temperature: 22.8,
     occupancy: 3,
     maxOccupancy: 8,
-    humidity: 38,
-    airQuality: "Excellent",
-    energyUsage: 4.2,
+    humidity: 42,
+    airQuality: "Výborná",
+    energyUsage: 1.8,
     status: "optimal",
     efficiency: 91,
   },
   {
     id: "room-004",
-    name: "Data Center Core",
+    name: "Serverová miestnosť",
     temperature: 18.2,
     occupancy: 1,
     maxOccupancy: 4,
     humidity: 35,
-    airQuality: "Good",
+    airQuality: "Dobrá",
     energyUsage: 8.7,
     status: "critical",
     efficiency: 67,
   },
   {
     id: "room-005",
-    name: "Executive Lounge",
+    name: "Zastupiteľská sála",
     temperature: 23.0,
-    occupancy: 5,
-    maxOccupancy: 15,
+    occupancy: 25,
+    maxOccupancy: 50,
     humidity: 48,
-    airQuality: "Excellent",
-    energyUsage: 1.8,
+    airQuality: "Výborná",
+    energyUsage: 4.2,
     status: "optimal",
     efficiency: 96,
   },
   {
     id: "room-006",
-    name: "Training Center Delta",
-    temperature: 25.3,
+    name: "Kancelárske priestory",
+    temperature: 22.3,
     occupancy: 22,
-    maxOccupancy: 25,
-    humidity: 58,
-    airQuality: "Fair",
-    energyUsage: 5.4,
+    maxOccupancy: 30,
+    humidity: 46,
+    airQuality: "Priemerná",
+    energyUsage: 3.4,
     status: "warning",
     efficiency: 72,
   },
@@ -159,41 +159,31 @@ const mockAlerts = [
   {
     id: "alert-001",
     type: "critical",
-    title: "Temperature Critical",
-    message: "Data Center Core temperature approaching critical threshold",
-    timestamp: "2 minutes ago",
-    room: "Data Center Core",
+    title: "Kritická teplota",
+    message: "Teplota v datovom centre sa blíži ku kritickej hranici",
+    timestamp: "pred 2 minútami",
+    room: "Datové centrum",
     severity: "high",
   },
   {
     id: "alert-002",
     type: "warning",
-    title: "High Occupancy",
-    message: "Training Center Delta at 88% capacity",
-    timestamp: "5 minutes ago",
-    room: "Training Center Delta",
+    title: "Vysoká obsadenosť",
+    message: "Školiaci stredisko Delta je obsadené na 88%",
+    timestamp: "pred 5 minútami",
+    room: "Školiaci stredisko Delta",
     severity: "medium",
   },
   {
     id: "alert-003",
     type: "info",
-    title: "Maintenance Scheduled",
-    message: "HVAC system maintenance scheduled for Conference Room Alpha",
-    timestamp: "15 minutes ago",
-    room: "Conference Room Alpha",
+    title: "Plánovaná údržba",
+    message: "Údržba klimatizácie naplánovaná pre Kongresovú miestnosť Alfa",
+    timestamp: "pred 15 minútami",
+    room: "Kongresová miestnosť Alfa",
     severity: "low",
   },
-  // {
-  //   id: "alert-004",
-  //   type: "warning",
-  //   title: "Energy Spike",
-  //   message: "Unusual energy consumption detected in Innovation Lab Beta",
-  //   timestamp: "22 minutes ago",
-  //   room: "Innovation Lab Beta",
-  //   severity: "medium",
-  // },
 ]
-
 
 // Prevent server-side rendering
 const Viewer = dynamic(() => Promise.resolve(ThreeDViewer), { ssr: false });
@@ -312,6 +302,7 @@ function ThreeDViewer() {
 
 
 export default function Dashboard() {
+  const { t } = useTranslation()
   const [rooms, setRooms] = useState(mockRooms)
   const [alerts, setAlerts] = useState(mockAlerts)
   const [selectedRoom, setSelectedRoom] = useState(mockRooms[0])
@@ -333,29 +324,28 @@ export default function Dashboard() {
   }, [])
 
   const getStatusColor = (status: string) => {
-    switch (status?.toLowerCase()) {
-      case "critical":
-        return "destructive"
-      case "warning":
-        return "secondary"
+    switch (status) {
       case "optimal":
-        return "default"
+        return "bg-green-500"
+      case "warning":
+        return "bg-yellow-500"
+      case "critical":
+        return "bg-red-500"
       default:
-        return "outline"
+        return "bg-gray-500"
     }
   }
-
 
   const getAlertIcon = (type: string) => {
     switch (type) {
       case "critical":
-        return <AlertTriangle className="h-4 w-4 text-red-400" />
-      case "warning":
-        return <Activity className="h-4 w-4 text-yellow-400" />
-      case "info":
-        return <Wifi className="h-4 w-4 text-blue-400" />
-      default:
         return <AlertTriangle className="h-4 w-4" />
+      case "warning":
+        return <AlertTriangle className="h-4 w-4" />
+      case "info":
+        return <Eye className="h-4 w-4" />
+      default:
+        return <Eye className="h-4 w-4" />
     }
   }
 
@@ -599,7 +589,7 @@ export default function Dashboard() {
               <div className="flex items-center justify-between">
                 <CardTitle className="text-lg text-black">{room.name}</CardTitle>
                 <Badge variant={getStatusColor(room.status) as any} className="capitalize">
-                  {room.status}
+                  {t(`status.${room.status}`)}
                 </Badge>
               </div>
             </CardHeader>

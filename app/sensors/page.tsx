@@ -9,44 +9,56 @@ import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ArrowLeft, Search, Thermometer, Users, Zap, Wind, Camera, Wifi, WifiOff, Activity, Shield } from "lucide-react"
 import Link from "next/link"
+import { useTranslation } from '@/lib/translations/TranslationContext'
 
 // Mock sensor data
 const mockSensors = [
   {
     id: "sensor-001",
-    name: "Temperature Sensor Alpha-1",
+    name: "Teplotný senzor Alfa",
     type: "temperature",
-    room: "Conference Room Alpha",
-    status: "online",
+    room: "Vstupná hala",
+    status: "active",
     value: "22.5°C",
-    lastUpdate: "2024-01-15 14:30:22",
+    lastUpdate: "pred 2 minútami",
     batteryLevel: 85,
     signalStrength: 95,
   },
   {
     id: "sensor-002",
-    name: "Occupancy Sensor Beta-1",
+    name: "Senzor obsadenosti Beta",
     type: "occupancy",
-    room: "Innovation Lab Beta",
-    status: "online",
-    value: "15 people",
-    lastUpdate: "2024-01-15 14:30:18",
+    room: "Zasadacia miestnosť",
+    status: "active",
+    value: "15/20",
+    lastUpdate: "pred 1 minútou",
     batteryLevel: 92,
     signalStrength: 88,
   },
   {
     id: "sensor-003",
-    name: "Energy Monitor Gamma-1",
-    type: "energy",
-    room: "Research Center Gamma",
-    status: "offline",
-    value: "4.2 kW",
-    lastUpdate: "2024-01-15 13:45:10",
-    batteryLevel: 23,
-    signalStrength: 0,
+    name: "Senzor kvality vzduchu Gama",
+    type: "air-quality",
+    room: "Kancelária starostu",
+    status: "warning",
+    value: "Výborná",
+    lastUpdate: "pred 5 minútami",
+    batteryLevel: 45,
+    signalStrength: 76,
   },
   {
     id: "sensor-004",
+    name: "Energomer Delta",
+    type: "energy",
+    room: "Serverová miestnosť",
+    status: "active",
+    value: "8.7 kW",
+    lastUpdate: "pred 3 minútami",
+    batteryLevel: 78,
+    signalStrength: 0,
+  },
+  {
+    id: "sensor-005",
     name: "HVAC Sensor Alpha-2",
     type: "hvac",
     room: "Conference Room Alpha",
@@ -57,7 +69,7 @@ const mockSensors = [
     signalStrength: 92,
   },
   {
-    id: "sensor-005",
+    id: "sensor-006",
     name: "Security Camera Beta-2",
     type: "camera",
     room: "Innovation Lab Beta",
@@ -66,17 +78,6 @@ const mockSensors = [
     lastUpdate: "2024-01-15 14:30:22",
     batteryLevel: null,
     signalStrength: 98,
-  },
-  {
-    id: "sensor-006",
-    name: "Air Quality Monitor Delta-1",
-    type: "air",
-    room: "Training Center Delta",
-    status: "warning",
-    value: "Fair",
-    lastUpdate: "2024-01-15 14:28:15",
-    batteryLevel: 67,
-    signalStrength: 76,
   },
 ]
 
@@ -124,6 +125,7 @@ const mockControllers = [
 ]
 
 export default function SensorsPage() {
+  const { t } = useTranslation()
   const [searchTerm, setSearchTerm] = useState("")
   const [sensors, setSensors] = useState(mockSensors)
   const [controllers, setControllers] = useState(mockControllers)
@@ -134,14 +136,14 @@ export default function SensorsPage() {
         return <Thermometer className="h-4 w-4 text-blue-400" />
       case "occupancy":
         return <Users className="h-4 w-4 text-green-400" />
+      case "air-quality":
+        return <Activity className="h-4 w-4 text-orange-400" />
       case "energy":
         return <Zap className="h-4 w-4 text-yellow-400" />
       case "hvac":
         return <Wind className="h-4 w-4 text-cyan-400" />
       case "camera":
         return <Camera className="h-4 w-4 text-purple-400" />
-      case "air":
-        return <Activity className="h-4 w-4 text-orange-400" />
       case "lighting":
         return <Activity className="h-4 w-4 text-yellow-400" />
       case "security":
@@ -201,7 +203,7 @@ export default function SensorsPage() {
 
   return (
     <div className="min-h-screen bg-white">
-           {/* Animated Header */}
+      {/* Animated Header */}
       <header className="glass-card-strong border-b border-white/10 sticky top-0 z-50">
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
@@ -211,32 +213,31 @@ export default function SensorsPage() {
               </div>
               <div>
                 <h1 className="text-2xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-black">
-                  Digital Twin Control System
+                  Systém riadenia digitálneho dvojčaťa
                 </h1>
-                <p className="text-sm text-gray-400">Real-time facility management</p>
+                <p className="text-sm text-gray-400">Správa zariadení v reálnom čase</p>
               </div>
             </div>
             <nav className="flex space-x-2">
               <Link href="/">
                 <Button variant="ghost" className="text-black hover:bg-white/10">
-                  Dashboard
+                  {t('dashboard')}
                 </Button>
               </Link>
               <Link href="/sensors">
                 <Button variant="ghost" className="text-black hover:bg-white/10">
-                  Sensors
+                  {t('sensors')}
                 </Button>
               </Link>
               <Link href="/analytics">
                 <Button variant="ghost" className="text-black hover:bg-white/10">
-                  Analytics
+                  {t('analytics')}
                 </Button>
               </Link>
             </nav>
           </div>
         </div>
       </header>
-
 
       <div className="container mx-auto px-6 py-8">
         {/* Overview Stats */}
@@ -245,9 +246,9 @@ export default function SensorsPage() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-400">Online Sensors</p>
+                  <p className="text-sm text-gray-400">{t('sensors.onlineSensors')}</p>
                   <p className="text-3xl font-bold text-black">{onlineSensors}</p>
-                  <p className="text-xs text-green-400 mt-1">of {sensors.length} total</p>
+                  <p className="text-xs text-green-400 mt-1">{t('sensors.ofTotal')} {sensors.length}</p>
                 </div>
                 <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center">
                   <Activity className="h-6 w-6 text-black" />
@@ -260,9 +261,9 @@ export default function SensorsPage() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-400">Active Controllers</p>
+                  <p className="text-sm text-gray-400">{t('sensors.activeControllers')}</p>
                   <p className="text-3xl font-bold text-black">{onlineControllers}</p>
-                  <p className="text-xs text-blue-400 mt-1">of {controllers.length} total</p>
+                  <p className="text-xs text-blue-400 mt-1">{t('sensors.ofTotal')} {controllers.length}</p>
                 </div>
                 <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
                   <Shield className="h-6 w-6 text-black" />
@@ -275,9 +276,9 @@ export default function SensorsPage() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-400">Low Battery</p>
+                  <p className="text-sm text-gray-400">{t('sensors.lowBattery')}</p>
                   <p className="text-3xl font-bold text-black">{lowBatterySensors}</p>
-                  <p className="text-xs text-red-400 mt-1">need attention</p>
+                  <p className="text-xs text-red-400 mt-1">{t('sensors.needAttention')}</p>
                 </div>
                 <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-red-500 to-pink-500 flex items-center justify-center">
                   <Zap className="h-6 w-6 text-black" />
@@ -290,9 +291,9 @@ export default function SensorsPage() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-400">System Health</p>
+                  <p className="text-sm text-gray-400">{t('sensors.systemHealth')}</p>
                   <p className="text-3xl font-bold text-black">94%</p>
-                  <p className="text-xs text-green-400 mt-1">excellent</p>
+                  <p className="text-xs text-green-400 mt-1">{t('sensors.excellent')}</p>
                 </div>
                 <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
                   <Activity className="h-6 w-6 text-black" />
@@ -337,7 +338,11 @@ export default function SensorsPage() {
                         ) : (
                           <WifiOff className="h-4 w-4 text-red-400" />
                         )}
-                        <Badge variant={getStatusColor(sensor.status) as any}>{sensor.status}</Badge>
+                        <Badge variant={getStatusColor(sensor.status) as any}>
+                          {sensor.status === "active" ? t('sensors.status.active') : 
+                           sensor.status === "warning" ? t('sensors.status.warning') : 
+                           t('sensors.status.inactive')}
+                        </Badge>
                       </div>
                     </div>
                     <CardDescription className="text-gray-400">{sensor.room}</CardDescription>
@@ -345,24 +350,24 @@ export default function SensorsPage() {
                   <CardContent>
                     <div className="space-y-4">
                       <div>
-                        <p className="text-sm font-medium text-gray-400">Current Value</p>
+                        <p className="text-sm font-medium text-gray-400">{t('sensors.currentValue')}</p>
                         <p className="text-2xl font-bold text-black">{sensor.value}</p>
                       </div>
 
                       <div className="grid grid-cols-2 gap-4 text-sm">
                         <div>
-                          <span className="text-gray-400">Signal</span>
+                          <span className="text-gray-400">{t('sensors.signal')}</span>
                           <p className="text-black font-medium">{getSignalStrength(sensor.signalStrength)}</p>
                         </div>
                         <div>
-                          <span className="text-gray-400">Updated</span>
+                          <span className="text-gray-400">{t('sensors.updated')}</span>
                           <p className="text-black font-medium">{sensor.lastUpdate.split(" ")[1]}</p>
                         </div>
                       </div>
 
                       {sensor.batteryLevel !== null && (
                         <div className="flex justify-between items-center">
-                          <span className="text-sm text-gray-400">Battery</span>
+                          <span className="text-sm text-gray-400">{t('sensors.battery')}</span>
                           <Badge variant={getBatteryColor(sensor.batteryLevel) as any}>{sensor.batteryLevel}%</Badge>
                         </div>
                       )}
@@ -371,7 +376,7 @@ export default function SensorsPage() {
                         variant="outline"
                         className="w-full glass-card border-white/20 text-black hover:bg-white/10"
                       >
-                        Configure Device
+                        {t('sensors.configureDevice')}
                       </Button>
                     </div>
                   </CardContent>
@@ -399,7 +404,11 @@ export default function SensorsPage() {
                         {getSensorIcon(controller.type)}
                         <CardTitle className="text-lg text-black">{controller.name}</CardTitle>
                       </div>
-                      <Badge variant={getStatusColor(controller.status) as any}>{controller.status}</Badge>
+                      <Badge variant={getStatusColor(controller.status) as any}>
+                        {controller.status === "online" ? t('sensors.status.online') :
+                         controller.status === "maintenance" ? t('sensors.status.maintenance') :
+                         t('sensors.status.offline')}
+                      </Badge>
                     </div>
                     <CardDescription className="text-gray-400">
                       Controls: {Array.isArray(controller.rooms) ? controller.rooms.join(", ") : controller.rooms}
@@ -408,14 +417,17 @@ export default function SensorsPage() {
                   <CardContent>
                     <div className="space-y-4">
                       <div className="flex justify-between items-center">
-                        <span className="text-sm font-medium text-gray-400">Mode</span>
+                        <span className="text-sm font-medium text-gray-400">{t('sensors.mode')}</span>
                         <Badge variant="outline" className="border-white/20 text-black">
-                          {controller.mode}
+                          {controller.mode === "auto" ? t('sensors.mode.auto') :
+                           controller.mode === "manual" ? t('sensors.mode.manual') :
+                           controller.mode === "schedule" ? t('sensors.mode.schedule') :
+                           controller.mode}
                         </Badge>
                       </div>
 
                       <div className="flex justify-between items-center">
-                        <span className="text-sm font-medium text-gray-400">Status</span>
+                        <span className="text-sm font-medium text-gray-400">{t('sensors.deviceStatus')}</span>
                         <Switch
                           checked={controller.enabled}
                           onCheckedChange={() => toggleController(controller.id)}
@@ -425,7 +437,7 @@ export default function SensorsPage() {
                       </div>
 
                       <div className="text-sm text-gray-400">
-                        <span>Last Update: </span>
+                        <span>{t('sensors.lastUpdate')}: </span>
                         <span className="text-black">{controller.lastUpdate.split(" ")[1]}</span>
                       </div>
 
@@ -433,7 +445,7 @@ export default function SensorsPage() {
                         variant="outline"
                         className="w-full glass-card border-white/20 text-black hover:bg-white/10"
                       >
-                        Advanced Settings
+                        {t('sensors.advancedSettings')}
                       </Button>
                     </div>
                   </CardContent>

@@ -2,13 +2,14 @@ import type React from "react"
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
+import { TranslationProvider } from "@/lib/translations/TranslationContext"
 
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Digital Twin Control System",
-  description: "Admin interface for managing digital twin environments",
-    generator: 'v0.dev'
+  title: "Systém riadenia digitálneho dvojčaťa",
+  description: "Administratívne rozhranie pre správu digitálnych dvojčiat",
+  generator: 'v0.dev'
 }
 
 export default function RootLayout({
@@ -17,8 +18,12 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
-      <body className={inter.className}>{children}</body>
+    <html lang="sk">
+      <body className={inter.className}>
+        <TranslationProvider>
+          {children}
+        </TranslationProvider>
+      </body>
     </html>
   )
 }
