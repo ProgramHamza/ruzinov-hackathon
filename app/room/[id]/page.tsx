@@ -14,6 +14,7 @@ import Link from "next/link"
 import { RoomVisualization } from "@/components/room-visualization"
 import { EnergyChart } from "@/components/energy-chart"
 import { TemperatureChart } from "@/components/temperature-chart"
+import { useTranslation } from "@/lib/translations/TranslationContext"
 
 // Mock room data
 const mockRoomData = {
@@ -57,6 +58,7 @@ export default function RoomDetail() {
   const [room, setRoom] = useState(mockRoomData[roomId as keyof typeof mockRoomData])
   const [hvacEnabled, setHvacEnabled] = useState(room?.hvacEnabled || false)
   const [lightingLevel, setLightingLevel] = useState([room?.lightingLevel || 50])
+  const { t } = useTranslation()
 
   useEffect(() => {
     if (roomId && mockRoomData[roomId as keyof typeof mockRoomData]) {
@@ -71,11 +73,11 @@ export default function RoomDetail() {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
         <div className="text-center glass-card p-8 rounded-lg">
-          <h1 className="text-2xl font-bold mb-4 text-black">Room Not Found</h1>
+          <h1 className="text-2xl font-bold mb-4 text-black">{t('error')}</h1>
           <Link href="/">
             <Button className="glass-card border-white/20 text-black hover:bg-white/10">
               <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Dashboard
+              {t('actions.backToDashboard')}
             </Button>
           </Link>
         </div>
@@ -106,7 +108,7 @@ export default function RoomDetail() {
               <Link href="/">
                 <Button variant="ghost" size="sm" className="text-black hover:bg-white/10">
                   <ArrowLeft className="h-4 w-4 mr-2" />
-                  Back to Dashboard
+                  {t('actions.backToDashboard')}
                 </Button>
               </Link>
               <div>
@@ -115,11 +117,11 @@ export default function RoomDetail() {
                 </h1>
                 <div className="flex items-center gap-3 mt-1">
                   <Badge variant={getStatusColor(room.status) as any} className="capitalize">
-                    {room.status}
+                    {t(`status.${room.status}`)}
                   </Badge>
-                  <span className="text-sm text-gray-400">Last maintenance: {room.lastMaintenance}</span>
+                  <span className="text-sm text-gray-400">{t('actions.lastMaintenance')}: {room.lastMaintenance}</span>
                   <span className="text-sm text-gray-400">•</span>
-                  <span className="text-sm text-gray-400">Efficiency: {room.efficiency}%</span>
+                  <span className="text-sm text-gray-400">{t('efficiency')}: {room.efficiency}%</span>
                 </div>
               </div>
             </div>
@@ -136,14 +138,14 @@ export default function RoomDetail() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-black">
                   <Wind className="h-5 w-5 text-blue-400" />
-                  Environmental Controls
+                  {t('roomProperties.environmentalControls')}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Wind className="h-4 w-4 text-blue-400" />
-                    <span className="font-medium text-black">HVAC System</span>
+                    <span className="font-medium text-black">{t('roomProperties.hvacSystem')}</span>
                   </div>
                   <Switch
                     checked={hvacEnabled}
@@ -156,7 +158,7 @@ export default function RoomDetail() {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <Lightbulb className="h-4 w-4 text-yellow-400" />
-                      <span className="font-medium text-black">Lighting Level</span>
+                      <span className="font-medium text-black">{t('roomProperties.lightingLevel')}</span>
                     </div>
                     <span className="text-sm text-gray-400">{lightingLevel[0]}%</span>
                   </div>
@@ -198,20 +200,20 @@ export default function RoomDetail() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-black">
                   <Activity className="h-5 w-5 text-purple-400" />
-                  Quick Stats
+                  {t('roomProperties.quickStats')}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-400">Air Quality</span>
+                  <span className="text-gray-400">{t('airQuality')}</span>
                   <Badge variant="default">{room.airQuality}</Badge>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-400">Humidity</span>
+                  <span className="text-gray-400">{t('humidity')}</span>
                   <span className="text-black font-medium">{room.humidity}%</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-400">Efficiency</span>
+                  <span className="text-gray-400">{t('efficiency')}</span>
                   <span className="text-black font-medium">{room.efficiency}%</span>
                 </div>
               </CardContent>
@@ -226,9 +228,9 @@ export default function RoomDetail() {
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-gray-400">Temperature</p>
+                      <p className="text-sm text-gray-400">{t('temperature')}</p>
                       <p className="text-3xl font-bold text-black">{room.temperature.toFixed(1)}°C</p>
-                      <p className="text-xs text-blue-400 mt-1">Target: 22.0°C</p>
+                      <p className="text-xs text-blue-400 mt-1">{t('roomProperties.target')}: 22.0°C</p>
                     </div>
                     <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
                       <Thermometer className="h-6 w-6 text-black" />
@@ -241,7 +243,7 @@ export default function RoomDetail() {
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-gray-400">Occupancy</p>
+                      <p className="text-sm text-gray-400">{t('occupancy')}</p>
                       <p className="text-3xl font-bold text-black">{room.occupancy}</p>
                       <Progress value={(room.occupancy / room.maxOccupancy) * 100} className="mt-2 h-2 bg-gray-800" />
                     </div>
@@ -256,9 +258,9 @@ export default function RoomDetail() {
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-gray-400">Energy Usage</p>
+                      <p className="text-sm text-gray-400">{t('energyUsage')}</p>
                       <p className="text-3xl font-bold text-black">{room.energyUsage.toFixed(1)} kW</p>
-                      <p className="text-xs text-green-400 mt-1">-12% vs yesterday</p>
+                      <p className="text-xs text-green-400 mt-1">{t('roomProperties.vsYesterday')}: -12%</p>
                     </div>
                     <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-yellow-500 to-orange-500 flex items-center justify-center">
                       <Zap className="h-6 w-6 text-black" />
@@ -271,9 +273,9 @@ export default function RoomDetail() {
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-gray-400">Efficiency</p>
+                      <p className="text-sm text-gray-400">{t('efficiency')}</p>
                       <p className="text-3xl font-bold text-black">{room.efficiency}%</p>
-                      <p className="text-xs text-purple-400 mt-1">+3% this week</p>
+                      <p className="text-xs text-purple-400 mt-1">{t('roomProperties.thisWeek')}: +3%</p>
                     </div>
                     <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
                       <Activity className="h-6 w-6 text-black" />
@@ -286,26 +288,26 @@ export default function RoomDetail() {
             <Tabs defaultValue="visualization" className="w-full">
               <TabsList className="glass-card-strong border border-white/10">
                 <TabsTrigger value="visualization" className="data-[state=active]:bg-white/20">
-                  3D Visualization
+                  {t('roomProperties.visualization')}
                 </TabsTrigger>
                 
                 <TabsTrigger value="overview" className="data-[state=active]:bg-white/20">
-                  Overview
+                  {t('roomProperties.overview')}
                 </TabsTrigger>
 
                 <TabsTrigger value="analytics" className="data-[state=active]:bg-white/20">
-                  Analytics
+                  {t('roomProperties.analytics')}
                 </TabsTrigger>
                 <TabsTrigger value="history" className="data-[state=active]:bg-white/20">
-                  History
+                  {t('roomProperties.history')}
                 </TabsTrigger>
               </TabsList>
               <TabsContent value="visualization">
                 <Card className="glass-card neon-glow">
                   <CardHeader>
-                    <CardTitle className="text-black">3D Room Visualization</CardTitle>
+                    <CardTitle className="text-black">{t('roomProperties.visualization')}</CardTitle>
                     <CardDescription className="text-gray-400">
-                      Interactive 3D model with real-time data overlay
+                      {t('roomProperties.visualizationDescription')}
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="p-0">
@@ -319,12 +321,12 @@ export default function RoomDetail() {
                   </CardContent>
                 </Card>
               </TabsContent>
-              <TabsContent value="overview" className="space-y-6">
+              <TabsContent value="overview">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   <Card className="glass-card neon-glow">
                     <CardHeader>
-                      <CardTitle className="text-black">Energy Consumption</CardTitle>
-                      <CardDescription className="text-gray-400">Real-time energy monitoring</CardDescription>
+                      <CardTitle className="text-black">{t('charts.energy')}</CardTitle>
+                      <CardDescription className="text-gray-400">{t('roomProperties.energyMonitoring')}</CardDescription>
                     </CardHeader>
                     <CardContent>
                       <EnergyChart />
@@ -333,8 +335,8 @@ export default function RoomDetail() {
 
                   <Card className="glass-card neon-glow">
                     <CardHeader>
-                      <CardTitle className="text-black">Temperature Trends</CardTitle>
-                      <CardDescription className="text-gray-400">24-hour temperature history</CardDescription>
+                      <CardTitle className="text-black">{t('charts.temperature')}</CardTitle>
+                      <CardDescription className="text-gray-400">{t('roomProperties.temperatureHistory')}</CardDescription>
                     </CardHeader>
                     <CardContent>
                       <TemperatureChart />
@@ -346,21 +348,21 @@ export default function RoomDetail() {
               <TabsContent value="analytics">
                 <Card className="glass-card neon-glow">
                   <CardHeader>
-                    <CardTitle className="text-black">Room Analytics</CardTitle>
+                    <CardTitle className="text-black">{t('roomProperties.roomAnalytics')}</CardTitle>
                     <CardDescription className="text-gray-400">
-                      Detailed performance metrics and insights
+                      {t('roomProperties.performanceMetrics')}
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                       <div className="text-center">
-                        <h3 className="font-medium mb-2 text-black">Energy Efficiency</h3>
+                        <h3 className="font-medium mb-2 text-black">{t('roomProperties.energyEfficiency')}</h3>
                         <div className="text-3xl font-bold text-blue-400 mb-2">{room.efficiency}%</div>
                         <Progress value={room.efficiency} className="h-2 bg-gray-800" />
                       </div>
 
                       <div className="text-center">
-                        <h3 className="font-medium mb-2 text-black">Utilization Rate</h3>
+                        <h3 className="font-medium mb-2 text-black">{t('roomProperties.utilizationRate')}</h3>
                         <div className="text-3xl font-bold text-green-400 mb-2">
                           {Math.round((room.occupancy / room.maxOccupancy) * 100)}%
                         </div>
@@ -368,8 +370,8 @@ export default function RoomDetail() {
                       </div>
 
                       <div className="text-center">
-                        <h3 className="font-medium mb-2 text-black">Climate Control</h3>
-                        <div className="text-3xl font-bold text-yellow-400 mb-2">Optimal</div>
+                        <h3 className="font-medium mb-2 text-black">{t('roomProperties.climateControl')}</h3>
+                        <div className="text-3xl font-bold text-yellow-400 mb-2">{t('status.optimal')}</div>
                         <Progress value={92} className="h-2 bg-gray-800" />
                       </div>
                     </div>
@@ -380,15 +382,15 @@ export default function RoomDetail() {
               <TabsContent value="history">
                 <Card className="glass-card neon-glow">
                   <CardHeader>
-                    <CardTitle className="text-black">Historical Data</CardTitle>
-                    <CardDescription className="text-gray-400">Room metrics over the past 30 days</CardDescription>
+                    <CardTitle className="text-black">{t('roomProperties.historicalData')}</CardTitle>
+                    <CardDescription className="text-gray-400">{t('roomProperties.metricsHistory')}</CardDescription>
                   </CardHeader>
                   <CardContent>
                     <div className="text-center py-12 text-gray-400">
                       <Activity className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                      <p>Historical charts and trend analysis would be displayed here</p>
+                      <p>{t('roomProperties.historicalCharts')}</p>
                       <p className="text-sm mt-2">
-                        Data includes temperature, occupancy, energy usage, and efficiency metrics
+                        {t('roomProperties.historicalDataDescription')}
                       </p>
                     </div>
                   </CardContent>

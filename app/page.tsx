@@ -221,7 +221,7 @@ function Pinpoint({
 
       {/* Label above the hitbox */}
       {label && (
-        <Html position={[0, size[1] + 0.1, 0]} distanceFactor={2}>
+        <Html position={[0, size[1] + 0.1, 0]} distanceFactor={3}>
           <div
             style={{
               background: 'white',

@@ -62,7 +62,9 @@ export const sk = {
     edit: "Upraviť",
     delete: "Vymazať",
     save: "Uložiť",
-    cancel: "Zrušiť"
+    cancel: "Zrušiť",
+    backToDashboard: "Späť na prehľad",
+    lastMaintenance: "Posledná údržba"
   },
 
   // Room Names
@@ -120,7 +122,7 @@ export const sk = {
     lastUpdate: "Posledná aktualizácia",
     advancedSettings: "Rozšírené nastavenia",
     controls: "Ovládanie",
-    status: {
+    sensorStatus: {
       active: "Aktívny",
       warning: "Varovanie",
       inactive: "Neaktívny",
@@ -128,7 +130,7 @@ export const sk = {
       maintenance: "Údržba",
       offline: "Offline"
     },
-    mode: {
+    controllerMode: {
       auto: "Automatický",
       manual: "Manuálny",
       schedule: "Podľa rozvrhu"
@@ -140,5 +142,32 @@ export const sk = {
       poor: "Slabá",
       noSignal: "Bez signálu"
     }
+  },
+
+  // Room Properties
+  roomProperties: {
+    environmentalControls: "Kontrola prostredia",
+    hvacSystem: "HVAC systém",
+    lightingLevel: "Úroveň osvetlenia",
+    quickStats: "Rýchle štatistiky",
+    target: "Cieľová hodnota",
+    vsYesterday: "Oproti včerajšku",
+    thisWeek: "Tento týždeň",
+    visualization: "3D vizualizácia",
+    overview: "Prehľad",
+    analytics: "Analytika",
+    history: "História",
+    visualizationDescription: "Interaktívny 3D model s prekrývajúcimi sa dátami v reálnom čase",
+    energyMonitoring: "Monitorovanie spotreby energie v reálnom čase",
+    temperatureHistory: "24-hodinová história teploty",
+    roomAnalytics: "Analytika miestnosti",
+    performanceMetrics: "Detailné metriky výkonu a poznatky",
+    energyEfficiency: "Energetická efektivita",
+    utilizationRate: "Miera využitia",
+    climateControl: "Klimatizácia",
+    historicalData: "Historické dáta",
+    metricsHistory: "Metriky miestnosti za posledných 30 dní",
+    historicalCharts: "Historické grafy a analýza trendov by sa zobrazili tu",
+    historicalDataDescription: "Dáta zahŕňajú teplotu, obsadenosť, spotrebu energie a metriky efektivity"
   }
 } 

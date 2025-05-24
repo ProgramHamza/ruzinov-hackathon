@@ -28,11 +28,19 @@ export function TranslationProvider({ children }: { children: React.ReactNode })
       if (value && typeof value === 'object' && k in value) {
         value = value[k]
       } else {
+        console.warn(`Translation key not found: ${key}`)
         return key
       }
     }
     
-    return typeof value === 'string' ? value : key
+    if (typeof value === 'string') {
+      return value
+    } else if (typeof value === 'object') {
+      console.warn(`Translation value is an object for key: ${key}`)
+      return key
+    } else {
+      return key
+    }
   }
 
   return (
