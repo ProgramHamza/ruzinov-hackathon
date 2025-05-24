@@ -110,7 +110,7 @@ export default function RoomDetail() {
                 </Button>
               </Link>
               <div>
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+                <h1 className="text-2xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-black">
                   {room.name}
                 </h1>
                 <div className="flex items-center gap-3 mt-1">
