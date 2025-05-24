@@ -1,9 +1,8 @@
 "use client"
 
-import { Canvas } from "@react-three/fiber"
-import { OrbitControls, Environment, Text, Sphere } from "@react-three/drei"
-import { useRef, useMemo } from "react"
-import * as THREE from "three"
+import { useEffect, useRef } from 'react'
+import * as THREE from 'three'
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 
 interface RoomVisualizationProps {
   temperature: number
@@ -11,116 +10,113 @@ interface RoomVisualizationProps {
   maxOccupancy: number
 }
 
-function Room({ temperature, occupancy, maxOccupancy }: RoomVisualizationProps) {
-  const meshRef = useRef<THREE.Mesh>(null)
+export function RoomVisualization({ temperature, occupancy, maxOccupancy }: RoomVisualizationProps) {
+  const containerRef = useRef<HTMLDivElement>(null)
+  const sceneRef = useRef<THREE.Scene | null>(null)
+  const cameraRef = useRef<THREE.PerspectiveCamera | null>(null)
+  const rendererRef = useRef<THREE.WebGLRenderer | null>(null)
+  const controlsRef = useRef<OrbitControls | null>(null)
 
-  // Enhanced temperature color mapping
-  const getTemperatureColor = (temp: number) => {
-    const normalizedTemp = Math.max(0, Math.min(1, (temp - 15) / 15))
-    return new THREE.Color().setHSL(0.7 - normalizedTemp * 0.7, 0.9, 0.6)
-  }
+  useEffect(() => {
+    if (!containerRef.current) return
 
-  // Occupancy visualization
-  const occupancyPositions = useMemo(() => {
-    return Array.from({ length: occupancy }, () => ({
-      x: (Math.random() - 0.5) * 3.5,
-      z: (Math.random() - 0.5) * 3.5,
-      y: -1.3,
-    }))
-  }, [occupancy])
+    // Initialize scene
+    const scene = new THREE.Scene()
+    sceneRef.current = scene
 
-  const temperatureColor = getTemperatureColor(temperature)
+    // Initialize camera
+    const camera = new THREE.PerspectiveCamera(
+      75,
+      containerRef.current.clientWidth / containerRef.current.clientHeight,
+      0.1,
+      1000
+    )
+    camera.position.set(5, 5, 5)
+    cameraRef.current = camera
+
+    // Initialize renderer
+    const renderer = new THREE.WebGLRenderer({ antialias: true })
+    renderer.setSize(containerRef.current.clientWidth, containerRef.current.clientHeight)
+    containerRef.current.appendChild(renderer.domElement)
+    rendererRef.current = renderer
+
+    // Add controls
+    const controls = new OrbitControls(camera, renderer.domElement)
+    controls.enableDamping = true
+    controlsRef.current = controls
+
+    // Add ambient light
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5)
+    scene.add(ambientLight)
+
+    // Add directional light
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5)
+    directionalLight.position.set(5, 5, 5)
+    scene.add(directionalLight)
+
+    // Create room
+    const roomGeometry = new THREE.BoxGeometry(10, 8, 10)
+    const roomMaterial = new THREE.MeshPhongMaterial({
+      color: 0xcccccc,
+      transparent: true,
+      opacity: 0.1,
+      side: THREE.BackSide
+    })
+    const room = new THREE.Mesh(roomGeometry, roomMaterial)
+    scene.add(room)
+
+    // Add temperature visualization
+    const tempColor = new THREE.Color().setHSL(0.7 - (temperature - 15) / 15 * 0.7, 0.9, 0.6)
+    const tempSphere = new THREE.Mesh(
+      new THREE.SphereGeometry(0.5, 32, 32),
+      new THREE.MeshPhongMaterial({
+        color: tempColor,
+        emissive: tempColor,
+        emissiveIntensity: 0.2
+      })
+    )
+    tempSphere.position.set(0, 0, 0)
+    scene.add(tempSphere)
+
+    // Add occupancy visualization
+    for (let i = 0; i < occupancy; i++) {
+      const person = new THREE.Mesh(
+        new THREE.SphereGeometry(0.2, 16, 16),
+        new THREE.MeshPhongMaterial({
+          color: 0x4ade80,
+          emissive: 0x22c55e,
+          emissiveIntensity: 0.2
+        })
+      )
+      person.position.set(
+        (Math.random() - 0.5) * 3.5,
+        -1.3,
+        (Math.random() - 0.5) * 3.5
+      )
+      scene.add(person)
+    }
+
+    // Animation loop
+    const animate = () => {
+      requestAnimationFrame(animate)
+      controls.update()
+      renderer.render(scene, camera)
+    }
+    animate()
+
+    // Cleanup
+    return () => {
+      if (containerRef.current && renderer.domElement) {
+        containerRef.current.removeChild(renderer.domElement)
+      }
+      renderer.dispose()
+    }
+  }, [temperature, occupancy])
 
   return (
-    <group>
-      {/* Room walls with glass effect */}
-      <mesh ref={meshRef} position={[0, 0, 0]}>
-        <boxGeometry args={[4, 3, 4]} />
-        <meshPhysicalMaterial
-          color={temperatureColor}
-          transparent
-          opacity={0.2}
-          transmission={0.9}
-          roughness={0.1}
-          metalness={0.1}
-        />
-      </mesh>
-
-      {/* Floor with gradient */}
-      <mesh position={[0, -1.5, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <planeGeometry args={[4, 4]} />
-        <meshStandardMaterial color={new THREE.Color().setHSL(0.6, 0.5, 0.3)} transparent opacity={0.8} />
-      </mesh>
-
-      {/* Ceiling */}
-      <mesh position={[0, 1.5, 0]} rotation={[Math.PI / 2, 0, 0]}>
-        <planeGeometry args={[4, 4]} />
-        <meshStandardMaterial color="#1a1a1a" transparent opacity={0.9} />
-      </mesh>
-
-      {/* Temperature display */}
-      <Text
-        position={[0, 2.2, 2.1]}
-        fontSize={0.4}
-        color="#ffffff"
-        anchorX="center"
-        anchorY="middle"
-        outlineWidth={0.02}
-        outlineColor="#000000"
-      >
-        {`${temperature.toFixed(1)}°C`}
-      </Text>
-
-      {/* Occupancy display */}
-      <Text
-        position={[0, 1.7, 2.1]}
-        fontSize={0.25}
-        color="#ffffff"
-        anchorX="center"
-        anchorY="middle"
-        outlineWidth={0.02}
-        outlineColor="#000000"
-      >
-        {`${occupancy}/${maxOccupancy} people`}
-      </Text>
-
-      {/* People visualization */}
-      {occupancyPositions.map((pos, index) => (
-        <Sphere key={index} position={[pos.x, pos.y, pos.z]} args={[0.15, 16, 16]}>
-          <meshStandardMaterial color="#4ade80" emissive="#22c55e" emissiveIntensity={0.2} />
-        </Sphere>
-      ))}
-
-      {/* Ambient lighting effects */}
-      <pointLight position={[0, 1, 0]} intensity={0.5} color={temperatureColor} />
-      <pointLight position={[2, 0.5, 2]} intensity={0.3} color="#ffffff" />
-      <pointLight position={[-2, 0.5, -2]} intensity={0.3} color="#ffffff" />
-    </group>
-  )
-}
-
-export function RoomVisualization(props: RoomVisualizationProps) {
-  return (
-    <div className="w-full h-full bg-gradient-to-b from-gray-900 to-black rounded-lg overflow-hidden">
-      <Canvas camera={{ position: [6, 4, 6], fov: 50 }}>
-        <ambientLight intensity={0.3} />
-        <pointLight position={[10, 10, 10]} intensity={0.8} />
-        <pointLight position={[-10, -10, -10]} intensity={0.3} />
-
-        <Room {...props} />
-
-        <OrbitControls
-          enablePan={true}
-          enableZoom={true}
-          enableRotate={true}
-          maxDistance={12}
-          minDistance={4}
-          autoRotate={true}
-          autoRotateSpeed={0.5}
-        />
-
-        <Environment preset="night" />
-      </Canvas>
-    </div>
+    <div 
+      ref={containerRef} 
+      className="w-full h-[400px] rounded-lg overflow-hidden"
+    />
   )
 }

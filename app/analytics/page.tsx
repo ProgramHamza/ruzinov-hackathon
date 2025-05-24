@@ -7,9 +7,11 @@ import { Progress } from "@/components/ui/progress"
 import { Badge } from "@/components/ui/badge"
 import { ArrowLeft, TrendingDown, TrendingUp, DollarSign, Zap, Calendar, Activity, BarChart3 } from "lucide-react"
 import Link from "next/link"
+import Image from "next/image"
 import { EnergyChart } from "@/components/energy-chart"
 import { TemperatureChart } from "@/components/temperature-chart"
 import { OccupancyChart } from "@/components/occupancy-chart"
+
 import { EfficiencyChart } from "@/components/efficiency-chart"
 import { CostAnalysisChart } from "@/components/cost-analysis-chart"
 import { PredictiveChart } from "@/components/predictive-chart"
@@ -49,30 +51,35 @@ export default function AnalyticsPage() {
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center neon-glow">
-                <Activity className="h-6 w-6 text-black" />
-              </div>
+              <Image
+                src="/logo.jpg"
+                alt="Logo"
+                width={102}
+                height={102}
+                className="rounded"
+              />
               <div>
                 <h1 className="text-2xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-black">
-                  {t('analytics')}
+                  Ružinov Internet of Things
                 </h1>
-                <p className="text-sm text-gray-400">{t('analytics.overview')}</p>
+                <p className="text-sm text-gray-400">Real-time facility management</p>
               </div>
             </div>
+      
             <nav className="flex space-x-2">
               <Link href="/">
                 <Button variant="ghost" className="text-black hover:bg-white/10">
-                  {t('dashboard')}
+                  Dashboard
                 </Button>
               </Link>
               <Link href="/sensors">
                 <Button variant="ghost" className="text-black hover:bg-white/10">
-                  {t('sensors')}
+                  Sensors
                 </Button>
               </Link>
               <Link href="/analytics">
                 <Button variant="ghost" className="text-black hover:bg-white/10">
-                  {t('analytics')}
+                  Analytics
                 </Button>
               </Link>
             </nav>

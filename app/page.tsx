@@ -24,8 +24,6 @@ import { RoomVisualization } from "@/components/room-visualization"
 import { EnergyChart } from "@/components/energy-chart"
 import { TemperatureChart } from "@/components/temperature-chart"
 import { OccupancyChart } from "@/components/occupancy-chart"
-import TextField from "@mui/material/TextField";
-import List from "./Components/List"
 
 
 function HeatmapCloth({ width = 3, height = 3, segmentsX = 30, segmentsY = 30, heatData }) {
@@ -587,18 +585,7 @@ export default function Dashboard() {
 
     <section>
       <h2 className="text-xl font-semibold text-black mb-4 text-center">Room Overview</h2>
-      <div className="main">
-      <h1>React Search</h1>
-      <div className="search">
-        <TextField
-          id="outlined-basic"
-          variant="outlined"
-          fullWidth
-          label="Search"
-        />
-      </div>
-      <List />
-    </div>
+      
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
         {rooms.map((room) => (
