@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef, Suspense, useState, useMemo } from 'react'
 import dynamic from 'next/dynamic'
+import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useTranslation } from '@/lib/translations/TranslationContext'
@@ -289,7 +290,7 @@ function ThreeDViewer() {
                     {/* Clickable Pinpoints */}
           <Pinpoint position={[0, -0.3, 0]} size={[0.6, 0.5, 0.6]} label="Vstupná hala" targetUrl="/room/room-001" />
           <Pinpoint position={[1, -0.3, -1]} size={[0.5, 0.5, 0.5]} label="Zasadacia miestnosť" targetUrl="/room/room-002" />
-          <Pinpoint position={[-1, 0.25, 1]} size={[0.4, 0.4, 0.4]} label="Laboratórium" targetUrl="/room/room-003" />
+          <Pinpoint position={[-1, 0.25, 1]} size={[0.4, 0.4, 0.4]} label="Kancelaria" targetUrl="/room/room-003" />
 
         </Suspense>
         <OrbitControls target={[0, 0, 0]} minPolarAngle={0} maxPolarAngle={Math.PI / 2} />
@@ -357,40 +358,47 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-white">
       {/* Animated Header */}
-      <header className="glass-card-strong border-b border-white/10 sticky top-0 z-50">
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center neon-glow">
-                <Activity className="h-6 w-6 text-black" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-black">
-                  Digital Twin Control System
-                </h1>
-                <p className="text-sm text-gray-400">Real-time facility management</p>
-              </div>
-            </div>
-            <nav className="flex space-x-2">
-              <Link href="/">
-                <Button variant="ghost" className="text-black hover:bg-white/10">
-                  Dashboard
-                </Button>
-              </Link>
-              <Link href="/sensors">
-                <Button variant="ghost" className="text-black hover:bg-white/10">
-                  Sensors
-                </Button>
-              </Link>
-              <Link href="/analytics">
-                <Button variant="ghost" className="text-black hover:bg-white/10">
-                  Analytics
-                </Button>
-              </Link>
-            </nav>
-          </div>
+<header className="glass-card-strong border-b border-white/10 sticky top-0 z-50">
+  <div className="container mx-auto px-6 py-4">
+    <div className="flex items-center justify-between">
+      <div className="flex items-center space-x-4">
+        <Image
+          src="/logo.jpg"
+          alt="Logo"
+          width={102}
+          height={102}
+          className="rounded"
+        />
+        <div>
+          <h1 className="text-2xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-black">
+            Ružinov Internet of Things
+          </h1>
+          <p className="text-sm text-gray-400">Real-time facility management</p>
         </div>
-      </header>
+      </div>
+
+      <nav className="flex space-x-2">
+        <Link href="/">
+          <Button variant="ghost" className="text-black hover:bg-white/10">
+            Dashboard
+          </Button>
+        </Link>
+        <Link href="/sensors">
+          <Button variant="ghost" className="text-black hover:bg-white/10">
+            Sensors
+          </Button>
+        </Link>
+        <Link href="/analytics">
+          <Button variant="ghost" className="text-black hover:bg-white/10">
+            Analytics
+          </Button>
+        </Link>
+      </nav>
+    </div>
+  </div>
+</header>
+
+
 
       <div className="container mx-auto px-6 py-8">
         {/* Key Metrics */}

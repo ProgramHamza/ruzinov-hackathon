@@ -47,7 +47,7 @@ function Sensor({ position, temperature, co2, humidity, lightLevel }) {
 
   return (
     <group position={position}>
-      <Sphere args={[0.1, 16, 16]} material-color={tempColor} />
+      <Sphere args={[0.1, 16, 16]} material-color={tempColor} castShadow />
       <Text position={[0, 0.3, 0]} fontSize={0.12} color="white" anchorX="center" anchorY="bottom">
         {tempText}°C, {humidityText}% Hum
       </Text>
@@ -63,12 +63,12 @@ function Heater({ position, isOn, power }) {
     if (!isOn) return new THREE.Color('gray');
     return power > 0.5 ? new THREE.Color('red') : new THREE.Color('orange');
   }, [isOn, power]);
-  return <Box args={[0.5, 0.5, 0.2]} position={position} material-color={heaterColor} />;
+  return <Box args={[0.5, 0.5, 0.2]} position={position} material-color={heaterColor} castShadow />;
 }
 
 function AC({ position, isOn }) {
   const acColor = useMemo(() => isOn ? new THREE.Color('lightblue') : new THREE.Color('darkgray'), [isOn]);
-  return <Box args={[0.8, 0.4, 0.3]} position={position} material-color={acColor} />;
+  return <Box args={[0.8, 0.4, 0.3]} position={position} material-color={acColor} castShadow />;
 }
 
 function Window({ position, size, openness }) {
@@ -76,7 +76,7 @@ function Window({ position, size, openness }) {
   const frameColor = useMemo(() => new THREE.Color("saddlebrown"), []);
   return (
     <group position={position}>
-      <Box args={[size.width + 0.1, size.height + 0.1, WALL_THICKNESS]} material-color={frameColor} />
+      <Box args={[size.width + 0.1, size.height + 0.1, WALL_THICKNESS]} material-color={frameColor} castShadow />
       <Box args={[size.width, size.height, WALL_THICKNESS / 2]} position={[0,0, windowPaneZOffset]}>
         <meshStandardMaterial color="skyblue" transparent opacity={0.3 + (1-openness) * 0.3} />
       </Box>
@@ -139,9 +139,9 @@ function WindowAirflowParticles({ active, openness, roomDepth, windowPos, window
 
 function InternalLight({ position, isOn }) {
     return (
-        <mesh position={position}>
+        <mesh position={position} castShadow={isOn}>
             <sphereGeometry args={[0.15, 16, 16]} />
-            <meshStandardMaterial color={isOn ? "yellow" : "darkgrey"} emissive={isOn ? "yellow" : "black"} emissiveIntensity={isOn ? 1.5 : 0} /> 
+            <meshStandardMaterial color={isOn ? "yellow" : "darkgrey"} emissive={isOn ? "yellow" : "black"} emissiveIntensity={isOn ? 2.0 : 0} /> 
         </mesh>
     );
 }
@@ -156,18 +156,31 @@ function RoomModel({ roomState, outsideConditions }) {
 
   const { outsideTemp, outsideHumidity, outsideWindSpeed, outsideWindDir, timeOfDay } = outsideConditions;
 
-  const wallMaterialColor = useMemo(() => new THREE.Color("#6c757d"), []); 
+  const wallMaterial = useMemo(() => new THREE.MeshStandardMaterial({ color: "#a0a0a0", roughness: 0.8, metalness: 0.1 }), []); 
+  const floorMaterial = useMemo(() => new THREE.MeshStandardMaterial({ color: "#7a7a7a", roughness: 0.9, metalness: 0.1 }), []);
+  const ceilingMaterial = useMemo(() => new THREE.MeshStandardMaterial({ color: "#b0b0b0", roughness: 0.8, metalness: 0.1 }), []);
   const personMaterialColor = useMemo(() => new THREE.Color("purple"), []);
-  const transparentMaterial = useMemo(() => new THREE.MeshStandardMaterial({ color: "#6c757d", transparent: true, opacity: 0.2, side: THREE.DoubleSide }), []); 
+  const transparentMaterial = useMemo(() => new THREE.MeshStandardMaterial({ 
+    color: "#a0a0a0", 
+    transparent: true, 
+    opacity: 0.25, // Slightly more opaque
+    side: THREE.DoubleSide,
+    // wireframe: true, // Optional: for edge definition
+    // wireframeLinewidth: 0.5, // Optional: if wireframe is used
+  }), []); 
 
 
   const walls = useMemo(() => [
-    { position: [0, 0, -ROOM_DEPTH / 2], args: [ROOM_WIDTH + WALL_THICKNESS * 2, ROOM_HEIGHT, WALL_THICKNESS], material: wallMaterialColor },
-    { position: [-ROOM_WIDTH / 2, 0, 0], args: [WALL_THICKNESS, ROOM_HEIGHT, ROOM_DEPTH], material: wallMaterialColor }, 
-    { position: [ROOM_WIDTH / 2, 0, 0], args: [WALL_THICKNESS, ROOM_HEIGHT, ROOM_DEPTH], material: wallMaterialColor }, 
-    { position: [0, -ROOM_HEIGHT / 2, 0], args: [ROOM_WIDTH + WALL_THICKNESS * 2, WALL_THICKNESS, ROOM_DEPTH], material: wallMaterialColor },
-    { position: [0, ROOM_HEIGHT / 2, 0], args: [ROOM_WIDTH + WALL_THICKNESS * 2, WALL_THICKNESS, ROOM_DEPTH], material: wallMaterialColor }, 
-  ], [wallMaterialColor]);
+    // Back Wall
+    { position: [0, 0, -ROOM_DEPTH / 2], args: [ROOM_WIDTH + WALL_THICKNESS * 2, ROOM_HEIGHT, WALL_THICKNESS], material: wallMaterial, receiveShadow: true, castShadow: true },
+    // Side Walls
+    { position: [-ROOM_WIDTH / 2, 0, 0], args: [WALL_THICKNESS, ROOM_HEIGHT, ROOM_DEPTH], material: wallMaterial, receiveShadow: true, castShadow: true }, 
+    { position: [ROOM_WIDTH / 2, 0, 0], args: [WALL_THICKNESS, ROOM_HEIGHT, ROOM_DEPTH], material: wallMaterial, receiveShadow: true, castShadow: true }, 
+    // Floor
+    { position: [0, -ROOM_HEIGHT / 2, 0], args: [ROOM_WIDTH + WALL_THICKNESS * 2, WALL_THICKNESS, ROOM_DEPTH], material: floorMaterial, receiveShadow: true }, 
+    // Ceiling
+    { position: [0, ROOM_HEIGHT / 2, 0], args: [ROOM_WIDTH + WALL_THICKNESS * 2, WALL_THICKNESS, ROOM_DEPTH], material: ceilingMaterial, receiveShadow: true }, 
+  ], [wallMaterial, floorMaterial, ceilingMaterial]);
 
   const frontWallPieces = useMemo(() => [
     { args:[(ROOM_WIDTH - WINDOW_SIZE.width)/2, ROOM_HEIGHT, WALL_THICKNESS], position:[- (WINDOW_SIZE.width + (ROOM_WIDTH - WINDOW_SIZE.width)/2)/2 , 0, ROOM_DEPTH/2] },
@@ -196,7 +209,7 @@ function RoomModel({ roomState, outsideConditions }) {
   return (
     <>
       {walls.map((wall, i) => (
-        <Box key={`wall-solid-${i}`} args={wall.args} position={wall.position} material={wall.material} />
+        <Box key={`wall-solid-${i}`} args={wall.args} position={wall.position} material={wall.material} receiveShadow={wall.receiveShadow} castShadow={wall.castShadow} />
       ))}
       
       {frontWallPieces.map((piece, i) => (
@@ -237,6 +250,7 @@ function RoomModel({ roomState, outsideConditions }) {
           args={[0.3, 16, 16]}
           position={[ (Math.random() - 0.5) * (ROOM_WIDTH - 2), -ROOM_HEIGHT / 2 + 0.3, (Math.random() - 0.5) * (ROOM_DEPTH - 2) ]}
           material-color={personMaterialColor}
+          castShadow
         />
       ))}
 
@@ -441,12 +455,12 @@ export default function App() {
 
   // --- UI Styles & Layout (Light Theme) ---
   const controlPanelStyle = { 
-    width: '480px', // Increased width for more space
+    width: '480px', 
     padding: '30px', 
     overflowY: 'auto', 
-    background: '#f8f9fa', // Very light gray, almost white
-    borderRight: '1px solid #dee2e6', // Softer border
-    color: '#212529', // Dark text
+    background: '#f8f9fa', 
+    borderRight: '1px solid #dee2e6', 
+    color: '#212529', 
     display: 'flex',
     flexDirection: 'column',
     gap: '25px' 
@@ -454,32 +468,32 @@ export default function App() {
   const controlBoxStyle = { 
     padding: '25px', 
     border: '1px solid #ced4da', 
-    borderRadius: '10px', // Slightly more rounded
-    background: '#ffffff', // White background for components
-    boxShadow: '0 3px 10px rgba(0,0,0,0.08)' // Softer shadow
+    borderRadius: '10px', 
+    background: '#ffffff', 
+    boxShadow: '0 3px 10px rgba(0,0,0,0.08)' 
   };
   const labelStyle = { 
     marginRight: '10px', 
-    minWidth: '140px', // Adjusted for new layout
+    minWidth: '140px', 
     display: 'inline-block', 
     fontSize: '0.9em', 
-    color: '#495057', // Standard dark gray for labels
+    color: '#495057', 
     fontWeight: '500'
   };
   const valueStyle = { 
     fontWeight: '600', 
-    color: '#007bff', // Primary blue for values
+    color: '#007bff', 
     padding: '3px 7px',
-    backgroundColor: '#e9ecef', // Light gray background for values
+    backgroundColor: '#e9ecef', 
     borderRadius: '4px',
-    display: 'inline-block' // Ensure background fits content
+    display: 'inline-block' 
   };
   const buttonStyle = { 
     padding: '10px 18px', 
-    borderRadius: '6px', // Standard rounding
+    borderRadius: '6px', 
     border: '1px solid transparent', 
     cursor: 'pointer', 
-    fontWeight: '500', // Medium weight
+    fontWeight: '500', 
     minWidth: '100px', 
     margin: '5px', 
     transition: 'all 0.2s ease-in-out',
@@ -511,7 +525,7 @@ export default function App() {
 
   const toggleButtonStyle = (isOn) => ({
     ...buttonStyle,
-    backgroundColor: isOn ? '#28a745' : '#dc3545', // Green for ON, Red for OFF
+    backgroundColor: isOn ? '#28a745' : '#dc3545', 
     color: 'white',
     border: `1px solid ${isOn ? '#28a745' : '#dc3545'}`,
   });
@@ -522,19 +536,19 @@ export default function App() {
 
 
   const inputStyle = { 
-    flexGrow: 1, // Allow slider to take remaining space
+    flexGrow: 1, 
     background: '#e9ecef', 
     borderRadius: '6px',
-    padding: '0px' // Default browser slider usually handles this
+    padding: '0px' 
   };
   const sectionTitleStyle = { 
     textAlign: 'center', 
     borderBottom: '1px solid #dee2e6', 
     paddingBottom: '15px', 
-    marginTop: '0px', // Remove top margin if box has padding
+    marginTop: '0px', 
     marginBottom: '25px', 
-    color: '#343a40', // Darker title
-    fontSize: '1.15em', // Slightly larger
+    color: '#343a40', 
+    fontSize: '1.15em', 
     fontWeight: '600',
     textTransform: 'uppercase',
     letterSpacing: '0.8px'
@@ -542,7 +556,7 @@ export default function App() {
   const sliderContainerStyle = {
     display: 'flex',
     alignItems: 'center',
-    marginBottom: '15px', // Increased spacing
+    marginBottom: '15px', 
     gap: '15px' 
   };
   const infoRowStyle = {
@@ -550,13 +564,12 @@ export default function App() {
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: '8px 0',
-    borderBottom: '1px solid #e9ecef', // Separator for info items
+    borderBottom: '1px solid #e9ecef', 
     fontSize: '0.9em'
   };
    const lastInfoRowStyle = { ...infoRowStyle, borderBottom: 'none' };
 
 
-  // Define formatted text variables for the App component's JSX
   const outsideTempText = typeof outsideTemp === 'number' ? outsideTemp.toFixed(1) : 'N/A';
   const outsideHumidityText = typeof outsideHumidity === 'number' ? outsideHumidity.toFixed(0) : 'N/A';
   const outsideWindText = typeof outsideWindSpeed === 'number' ? `${outsideWindSpeed.toFixed(1)} m/s ${outsideWindDir || ''}` : 'N/A';
@@ -572,7 +585,6 @@ export default function App() {
       <div style={controlPanelStyle}>
         <h2 style={{textAlign: 'center', color: '#007bff', marginBottom: '30px', fontSize: '1.6em', fontWeight: '700'}}>Smart Room Dashboard</h2>
 
-        {/* Current Indoor Conditions */}
         <div style={controlBoxStyle}>
             <h3 style={sectionTitleStyle}>Current Indoor Conditions</h3>
             <div style={infoRowStyle}><label style={labelStyle}>Avg. Temperature:</label> <span style={valueStyle}>{roomAvgTempText}°C</span></div>
@@ -665,8 +677,8 @@ export default function App() {
                     margin: '10px 0', 
                     padding: '12px 15px',
                     borderRadius: '6px',
-                    color: alert.startsWith("ALERT:") ? '#721c24' : '#004085', // Darker text for better readability on light backgrounds
-                    background: alert.startsWith("ALERT:") ? '#f8d7da' : '#cce5ff', // Light red for alert, light blue for status
+                    color: alert.startsWith("ALERT:") ? '#721c24' : '#004085', 
+                    background: alert.startsWith("ALERT:") ? '#f8d7da' : '#cce5ff', 
                     borderLeft: `5px solid ${alert.startsWith("ALERT:") ? '#f5c6cb' : '#b8daff'}`
                 }}>{alert}</p>
             ))}
@@ -674,18 +686,31 @@ export default function App() {
         </div>
       </div>
 
-      <div style={{ flex: 1, position: 'relative', backgroundColor: '#343a40' }}> {/* Darker background for 3D view contrast */}
-        <Canvas camera={{ position: [0, ROOM_HEIGHT * 0.7, ROOM_DEPTH * 2.0], fov: 60 }}> 
-          <ambientLight intensity={0.4} /> {/* Slightly more ambient light */}
-          <directionalLight position={[8, 8, 8]} intensity={1.0} castShadow shadow-mapSize-width={2048} shadow-mapSize-height={2048}/> {/* Stronger main light */}
-          <directionalLight position={[-8, 8, -8]} intensity={0.4} />
+      <div style={{ flex: 1, position: 'relative', backgroundColor: '#343a40' }}> 
+        <Canvas camera={{ position: [0, ROOM_HEIGHT * 0.7, ROOM_DEPTH * 2.0], fov: 60 }} shadows> {/* Enabled shadows on Canvas */}
+          <ambientLight intensity={0.5} /> {/* Adjusted ambient light */}
+          <hemisphereLight skyColor={0x87ceeb} groundColor={0x404040} intensity={0.4} /> {/* Added hemisphere light */}
+          <directionalLight 
+            position={[10, 10, 10]} 
+            intensity={1.2} // Main key light
+            castShadow 
+            shadow-mapSize-width={2048} 
+            shadow-mapSize-height={2048}
+            shadow-camera-far={50}
+            shadow-camera-left={-ROOM_WIDTH}
+            shadow-camera-right={ROOM_WIDTH}
+            shadow-camera-top={ROOM_HEIGHT * 2}
+            shadow-camera-bottom={-ROOM_HEIGHT * 2}
+          />
+          <directionalLight position={[-10, 10, -5]} intensity={0.4} /> {/* Fill light */}
+          
           <pointLight 
             position={LIGHT_POSITION} 
-            intensity={lightsOn ? 1.5 : 0} // Increased intensity
-            distance={ROOM_WIDTH * 1.2} // Adjusted distance
-            decay={1.5} // Adjusted decay
+            intensity={lightsOn ? 1.8 : 0} 
+            distance={ROOM_WIDTH * 1.5} 
+            decay={1.5} 
             color="white" 
-            castShadow={lightsOn} // Cast shadow only when on
+            castShadow={lightsOn} 
           />
           
           <RoomModel 
@@ -697,7 +722,7 @@ export default function App() {
           />
           
           <OrbitControls minDistance={ROOM_DEPTH * 0.4} maxDistance={ROOM_DEPTH * 3.5} target={[0, ROOM_HEIGHT * 0.1, 0]} /> 
-          <gridHelper args={[ROOM_WIDTH*2, 20, useMemo(() => new THREE.Color('#555'), []), useMemo(() => new THREE.Color('#666'), [])]} /> {/* Darker grid */}
+          <gridHelper args={[ROOM_WIDTH*2, 20, useMemo(() => new THREE.Color('#555'), []), useMemo(() => new THREE.Color('#666'), [])]} /> 
         </Canvas>
       </div>
     </div>
