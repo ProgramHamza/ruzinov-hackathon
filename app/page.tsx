@@ -284,8 +284,8 @@ function ThreeDViewer() {
           <Model path="/model.obj" />
 
           {/* Clickable Pinpoints */}
-          <Pinpoint position={[0, 0, 0]} label="Room 001" targetUrl="/room/room-001" />
-          <Pinpoint position={[1, 0.5, -1]} label="Room 002" targetUrl="/room/room-001" />
+          <Pinpoint position={[0, 0, 0]} label="Vstupná hala" targetUrl="/room/room-001" />
+          <Pinpoint position={[1, 0.5, -1]} label="zasadacia miestnosť" targetUrl="/room/room-001" />
           <Pinpoint position={[-1, 1, 1]} label="Room 003" targetUrl="/room/room-001" />
         </Suspense>
         <OrbitControls target={[0, 0, 0]} minPolarAngle={0} maxPolarAngle={Math.PI / 2} />
