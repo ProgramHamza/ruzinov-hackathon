@@ -11,7 +11,7 @@ import { Canvas, useLoader, useFrame } from '@react-three/fiber'
 import { OrbitControls, Html, useProgress } from '@react-three/drei'
 import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader'
 import * as THREE from 'three'
-
+import { TemperatureChart } from "@/components/temperature-chart"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -22,7 +22,7 @@ import { AlertTriangle, Thermometer, Users, Zap, Eye, TrendingUp, Activity, Wifi
 
 import { RoomVisualization } from "@/components/room-visualization"
 import { EnergyChart } from "@/components/energy-chart"
-import { TemperatureChart } from "@/components/temperature-chart"
+
 import { OccupancyChart } from "@/components/occupancy-chart"
 
 
@@ -584,8 +584,24 @@ export default function Dashboard() {
     </section>
 
     <section>
-      <h2 className="text-xl font-semibold text-black mb-4 text-center">Room Overview</h2>
-      
+      <h2 className="text-xl font-semibold text-black mb-4 text-center">Preh2ad miestností</h2>
+      <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-4">
+    <input
+      type="text"
+      placeholder="Search rooms..."
+      className="w-full md:w-1/2 px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500"
+      disabled
+    />
+    <select
+      className="w-full md:w-1/4 px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+      disabled
+    >
+      <option value="">Filter by status</option>
+      <option value="normal">Normal</option>
+      <option value="warning">Warning</option>
+      <option value="critical">Critical</option>
+    </select>
+  </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
         {rooms.map((room) => (

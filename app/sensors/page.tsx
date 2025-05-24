@@ -130,6 +130,23 @@ export default function SensorsPage() {
   const [searchTerm, setSearchTerm] = useState("")
   const [sensors, setSensors] = useState(mockSensors)
   const [controllers, setControllers] = useState(mockControllers)
+  <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-4">
+    <input
+      type="text"
+      placeholder="Search rooms..."
+      className="w-full md:w-1/2 px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500"
+      disabled
+    />
+    <select
+      className="w-full md:w-1/4 px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+      disabled
+    >
+      <option value="">Filter by status</option>
+      <option value="normal">Normal</option>
+      <option value="warning">Warning</option>
+      <option value="critical">Critical</option>
+    </select>
+  </div>
 
   const getSensorIcon = (type: string) => {
     switch (type) {
