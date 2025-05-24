@@ -24,6 +24,8 @@ import { RoomVisualization } from "@/components/room-visualization"
 import { EnergyChart } from "@/components/energy-chart"
 import { TemperatureChart } from "@/components/temperature-chart"
 import { OccupancyChart } from "@/components/occupancy-chart"
+import TextField from "@mui/material/TextField";
+import List from "./Components/List"
 
 
 function HeatmapCloth({ width = 3, height = 3, segmentsX = 30, segmentsY = 30, heatData }) {
@@ -156,36 +158,6 @@ const mockRooms = [
   },
 ]
 
-const mockAlerts = [
-  {
-    id: "alert-001",
-    type: "critical",
-    title: "Kritická teplota",
-    message: "Teplota v datovom centre sa blíži ku kritickej hranici",
-    timestamp: "pred 2 minútami",
-    room: "Datové centrum",
-    severity: "high",
-  },
-  {
-    id: "alert-002",
-    type: "warning",
-    title: "Vysoká obsadenosť",
-    message: "Školiaci stredisko Delta je obsadené na 88%",
-    timestamp: "pred 5 minútami",
-    room: "Školiaci stredisko Delta",
-    severity: "medium",
-  },
-  {
-    id: "alert-003",
-    type: "info",
-    title: "Plánovaná údržba",
-    message: "Údržba klimatizácie naplánovaná pre Kongresovú miestnosť Alfa",
-    timestamp: "pred 15 minútami",
-    room: "Kongresová miestnosť Alfa",
-    severity: "low",
-  },
-]
-
 // Prevent server-side rendering
 const Viewer = dynamic(() => Promise.resolve(ThreeDViewer), { ssr: false });
 
@@ -305,6 +277,37 @@ function ThreeDViewer() {
 export default function Dashboard() {
   const { t } = useTranslation()
   const [rooms, setRooms] = useState(mockRooms)
+  
+  const mockAlerts = [
+    {
+      id: "alert-001",
+      type: "critical",
+      title: t('alerts.hackathonAlerts.temperatureHigh'),
+      message: "Teplota v zasadacej hale nestúpa aj keď nemá byť. Skontrolujte nastavenie vykurovania.",
+      timestamp: "pred 2 minútami",
+      room: "Zasadacia miestnosť",
+      severity: "high",
+    },
+    {
+      id: "alert-002",
+      type: "warning",
+      title: t('alerts.hackathonAlerts.co2High'),
+      message: "Vysoká hladina CO2 v zasadacej hale. Odporúčame vetranie.",
+      timestamp: "pred 5 minútami",
+      room: "Zasadacia miestnosť",
+      severity: "medium",
+    },
+    {
+      id: "alert-003",
+      type: "info",
+      title: t('alerts.hackathonAlerts.lightLevelLow'),
+      message: "Nízka úroveň osvetlenia v zasadacej hale. Skontrolujte nastavenie osvetlenia.",
+      timestamp: "pred 15 minútami",
+      room: "Zasadacia miestnosť",
+      severity: "low",
+    },
+  ]
+
   const [alerts, setAlerts] = useState(mockAlerts)
   const [selectedRoom, setSelectedRoom] = useState(mockRooms[0])
 
@@ -584,7 +587,20 @@ export default function Dashboard() {
 
     <section>
       <h2 className="text-xl font-semibold text-black mb-4 text-center">Room Overview</h2>
+      <div className="main">
+      <h1>React Search</h1>
+      <div className="search">
+        <TextField
+          id="outlined-basic"
+          variant="outlined"
+          fullWidth
+          label="Search"
+        />
+      </div>
+      <List />
+    </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
         {rooms.map((room) => (
           <Card
             key={room.id}

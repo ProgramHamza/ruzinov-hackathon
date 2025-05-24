@@ -45,7 +45,6 @@ export default function AnalyticsPage() {
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
-           {/* Animated Header */}
       <header className="glass-card-strong border-b border-white/10 sticky top-0 z-50">
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
@@ -55,9 +54,9 @@ export default function AnalyticsPage() {
               </div>
               <div>
                 <h1 className="text-2xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-black">
-                  Systém riadenia digitálneho dvojčaťa
+                  {t('analytics')}
                 </h1>
-                <p className="text-sm text-gray-400">Správa zariadení v reálnom čase</p>
+                <p className="text-sm text-gray-400">{t('analytics.overview')}</p>
               </div>
             </div>
             <nav className="flex space-x-2">

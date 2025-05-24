@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber'; 
 import { OrbitControls, Text, Box, Sphere, Html, Line, Points } from '@react-three/drei';
 import * as THREE from 'three';
+import { useTranslation } from 'react-i18next';
 
 // Constants for simulation
 const ROOM_WIDTH = 10;
@@ -29,8 +30,115 @@ const SIMULATION_TICK_MS = 1000;
 const ANOMALY_CHECK_INTERVAL_MS = 5000; 
 const HEATER_COLD_ROOM_DURATION_THRESHOLD_MS = 15000; 
 
+interface SensorData {
+  position: { x: number; y: number };
+  temperature: number;
+  co2: number;
+  humidity: number;
+  lightLevel: number;
+}
+
+interface DeviceData {
+  position: { x: number; y: number };
+  isOn: boolean;
+  power?: number;
+}
+
+interface SensorProps {
+  position: THREE.Vector3;
+  temperature: number;
+  co2: number;
+  humidity: number;
+  lightLevel: number;
+}
+
+interface HeaterProps {
+  position: THREE.Vector3;
+  isOn: boolean;
+  power: number;
+}
+
+interface ACProps {
+  position: THREE.Vector3;
+  isOn: boolean;
+}
+
+interface WindowProps {
+  position: THREE.Vector3;
+  size: { width: number; height: number };
+  openness: number;
+}
+
+interface AirflowArrowProps {
+  start: THREE.Vector3;
+  direction: THREE.Vector3;
+  active: boolean;
+  color?: string;
+}
+
+interface WindowAirflowParticlesProps {
+  active: boolean;
+  openness: number;
+  roomDepth: number;
+  windowPos: THREE.Vector3;
+  windowSize: { width: number; height: number };
+}
+
+interface InternalLightProps {
+  position: THREE.Vector3;
+  isOn: boolean;
+}
+
+interface RoomState {
+  heaterOn: boolean;
+  heaterPower: number;
+  acOn: boolean;
+  windowOpenness: number;
+  numPeople: number;
+  lightsOn: boolean;
+  sensorData: SensorData[];
+  roomAverageTemp: number;
+  roomCO2: number;
+  roomAverageHumidity: number;
+  roomAverageLightLevel: number;
+}
+
+interface OutsideConditions {
+  outsideTemp: number;
+  outsideHumidity: number;
+  outsideWindSpeed: number;
+  outsideWindDir: string;
+  timeOfDay: string;
+}
+
+interface RoomModelProps {
+  roomState: RoomState;
+  outsideConditions: OutsideConditions;
+}
+
+interface WallPiece {
+  position: [number, number, number];
+  args: [number, number, number];
+  material: THREE.Material;
+  receiveShadow?: boolean;
+  castShadow?: boolean;
+}
+
+interface FrontWallPiece {
+  args: [number, number, number];
+  position: [number, number, number];
+}
+
+interface BoxProps {
+  args: [number, number, number];
+  position: [number, number, number];
+  material: THREE.Material;
+  receiveShadow?: boolean;
+  castShadow?: boolean;
+}
+
 // --- Helper Functions ---
-const getTemperatureColor = (temp, minTemp = 0, maxTemp = 40) => {
+const getTemperatureColor = (temp: number, minTemp = 0, maxTemp = 40) => {
   const normalizedTemp = Math.max(0, Math.min(1, (temp - minTemp) / (maxTemp - minTemp)));
   const color = new THREE.Color();
   color.setHSL(0.7 * (1 - normalizedTemp), 1, 0.5); 
@@ -38,7 +146,7 @@ const getTemperatureColor = (temp, minTemp = 0, maxTemp = 40) => {
 };
 
 // --- 3D Components ---
-function Sensor({ position, temperature, co2, humidity, lightLevel }) {
+function Sensor({ position, temperature, co2, humidity, lightLevel }: SensorProps) {
   const tempColor = useMemo(() => getTemperatureColor(temperature), [temperature]);
   const tempText = typeof temperature === 'number' ? temperature.toFixed(1) : 'N/A';
   const co2Text = typeof co2 === 'number' ? co2.toFixed(0) : 'N/A';
@@ -58,7 +166,7 @@ function Sensor({ position, temperature, co2, humidity, lightLevel }) {
   );
 }
 
-function Heater({ position, isOn, power }) {
+function Heater({ position, isOn, power }: HeaterProps) {
   const heaterColor = useMemo(() => {
     if (!isOn) return new THREE.Color('gray');
     return power > 0.5 ? new THREE.Color('red') : new THREE.Color('orange');
@@ -66,12 +174,12 @@ function Heater({ position, isOn, power }) {
   return <Box args={[0.5, 0.5, 0.2]} position={position} material-color={heaterColor} castShadow />;
 }
 
-function AC({ position, isOn }) {
+function AC({ position, isOn }: ACProps) {
   const acColor = useMemo(() => isOn ? new THREE.Color('lightblue') : new THREE.Color('darkgray'), [isOn]);
   return <Box args={[0.8, 0.4, 0.3]} position={position} material-color={acColor} castShadow />;
 }
 
-function Window({ position, size, openness }) {
+function Window({ position, size, openness }: WindowProps) {
   const windowPaneZOffset = openness * 0.1;
   const frameColor = useMemo(() => new THREE.Color("saddlebrown"), []);
   return (
@@ -84,7 +192,7 @@ function Window({ position, size, openness }) {
   );
 }
 
-function AirflowArrow({ start, direction, active, color = "rgba(255,255,255,0.5)" }) {
+function AirflowArrow({ start, direction, active, color = "rgba(255,255,255,0.5)" }: AirflowArrowProps) {
   if (!active) return null;
   const points = useMemo(() => {
     const s = start.clone(); 
@@ -96,9 +204,9 @@ function AirflowArrow({ start, direction, active, color = "rgba(255,255,255,0.5)
   return <Line points={points} color={lineColor} lineWidth={3} dashed dashSize={0.1} gapSize={0.05} />;
 }
 
-function WindowAirflowParticles({ active, openness, roomDepth, windowPos, windowSize }) {
+function WindowAirflowParticles({ active, openness, roomDepth, windowPos, windowSize }: WindowAirflowParticlesProps) {
   const count = 100;
-  const particlesRef = useRef();
+  const particlesRef = useRef<THREE.Points>(null);
 
   const particlePositions = useMemo(() => {
     const positions = new Float32Array(count * 3);
@@ -137,7 +245,7 @@ function WindowAirflowParticles({ active, openness, roomDepth, windowPos, window
   );
 }
 
-function InternalLight({ position, isOn }) {
+function InternalLight({ position, isOn }: InternalLightProps) {
     return (
         <mesh position={position} castShadow={isOn}>
             <sphereGeometry args={[0.15, 16, 16]} />
@@ -148,7 +256,7 @@ function InternalLight({ position, isOn }) {
 
 
 // --- Main Simulation Component ---
-function RoomModel({ roomState, outsideConditions }) {
+function RoomModel({ roomState, outsideConditions }: RoomModelProps) {
   const {
     heaterOn, heaterPower, acOn, windowOpenness, numPeople, lightsOn,
     sensorData, roomAverageTemp, roomCO2, roomAverageHumidity, roomAverageLightLevel
@@ -170,7 +278,7 @@ function RoomModel({ roomState, outsideConditions }) {
   }), []); 
 
 
-  const walls = useMemo(() => [
+  const walls = useMemo<WallPiece[]>(() => [
     // Back Wall
     { position: [0, 0, -ROOM_DEPTH / 2], args: [ROOM_WIDTH + WALL_THICKNESS * 2, ROOM_HEIGHT, WALL_THICKNESS], material: wallMaterial, receiveShadow: true, castShadow: true },
     // Side Walls
@@ -182,11 +290,11 @@ function RoomModel({ roomState, outsideConditions }) {
     { position: [0, ROOM_HEIGHT / 2, 0], args: [ROOM_WIDTH + WALL_THICKNESS * 2, WALL_THICKNESS, ROOM_DEPTH], material: ceilingMaterial, receiveShadow: true }, 
   ], [wallMaterial, floorMaterial, ceilingMaterial]);
 
-  const frontWallPieces = useMemo(() => [
-    { args:[(ROOM_WIDTH - WINDOW_SIZE.width)/2, ROOM_HEIGHT, WALL_THICKNESS], position:[- (WINDOW_SIZE.width + (ROOM_WIDTH - WINDOW_SIZE.width)/2)/2 , 0, ROOM_DEPTH/2] },
-    { args:[(ROOM_WIDTH - WINDOW_SIZE.width)/2, ROOM_HEIGHT, WALL_THICKNESS], position:[ (WINDOW_SIZE.width + (ROOM_WIDTH - WINDOW_SIZE.width)/2)/2 , 0, ROOM_DEPTH/2] },
-    { args:[WINDOW_SIZE.width, (ROOM_HEIGHT - WINDOW_SIZE.height)/2, WALL_THICKNESS], position:[0, ROOM_HEIGHT/2 - (ROOM_HEIGHT - WINDOW_SIZE.height)/4, ROOM_DEPTH/2] },
-    { args:[WINDOW_SIZE.width, (ROOM_HEIGHT - WINDOW_SIZE.height)/2, WALL_THICKNESS], position:[0, -ROOM_HEIGHT/2 + (ROOM_HEIGHT - WINDOW_SIZE.height)/4, ROOM_DEPTH/2] },
+  const frontWallPieces = useMemo<FrontWallPiece[]>(() => [
+    { args: [(ROOM_WIDTH - WINDOW_SIZE.width)/2, ROOM_HEIGHT, WALL_THICKNESS], position: [- (WINDOW_SIZE.width + (ROOM_WIDTH - WINDOW_SIZE.width)/2)/2 , 0, ROOM_DEPTH/2] },
+    { args: [(ROOM_WIDTH - WINDOW_SIZE.width)/2, ROOM_HEIGHT, WALL_THICKNESS], position: [ (WINDOW_SIZE.width + (ROOM_WIDTH - WINDOW_SIZE.width)/2)/2 , 0, ROOM_DEPTH/2] },
+    { args: [WINDOW_SIZE.width, (ROOM_HEIGHT - WINDOW_SIZE.height)/2, WALL_THICKNESS], position: [0, ROOM_HEIGHT/2 - (ROOM_HEIGHT - WINDOW_SIZE.height)/4, ROOM_DEPTH/2] },
+    { args: [WINDOW_SIZE.width, (ROOM_HEIGHT - WINDOW_SIZE.height)/2, WALL_THICKNESS], position: [0, -ROOM_HEIGHT/2 + (ROOM_HEIGHT - WINDOW_SIZE.height)/4, ROOM_DEPTH/2] },
   ], []);
 
 
@@ -209,11 +317,23 @@ function RoomModel({ roomState, outsideConditions }) {
   return (
     <>
       {walls.map((wall, i) => (
-        <Box key={`wall-solid-${i}`} args={wall.args} position={wall.position} material={wall.material} receiveShadow={wall.receiveShadow} castShadow={wall.castShadow} />
+        <Box 
+          key={`wall-solid-${i}`} 
+          args={wall.args as [number, number, number]} 
+          position={wall.position as [number, number, number]} 
+          material={wall.material} 
+          receiveShadow={wall.receiveShadow} 
+          castShadow={wall.castShadow} 
+        />
       ))}
       
       {frontWallPieces.map((piece, i) => (
-        <Box key={`wall-front-${i}`} args={piece.args} position={piece.position} material={transparentMaterial} />
+        <Box 
+          key={`wall-front-${i}`} 
+          args={piece.args as [number, number, number]} 
+          position={piece.position as [number, number, number]} 
+          material={transparentMaterial} 
+        />
       ))}
 
 
@@ -266,6 +386,7 @@ function RoomModel({ roomState, outsideConditions }) {
 
 // --- Main App Component ---
 export default function App() {
+  const { t } = useTranslation()
   // --- Core Room State ---
   const [numPeople, setNumPeople] = useState(1);
   const [heaterOn, setHeaterOn] = useState(false);
@@ -302,9 +423,8 @@ export default function App() {
   const [roomAverageLightLevel, setRoomAverageLightLevel] = useState(() => timeOfDay === "Day" ? 0.8 : 0.1);
 
   // --- Anomaly Detection ---
-  const [alerts, setAlerts] = useState([]);
-  const heaterOnTimestampRef = useRef(null);
-
+  const [alerts, setAlerts] = useState<string[]>([]);
+  const heaterOnTimestampRef = useRef<number | null>(null);
 
   // --- Simulated Weather Fetch ---
   const fetchBratislavaWeather = () => {
@@ -411,21 +531,21 @@ export default function App() {
     }
 
     const anomalyIntervalId = setInterval(() => {
-      const newAlerts = [];
+      const newAlerts: string[] = [];
       if (heaterOn && heaterOnTimestampRef.current && windowOpenness < 0.1) {
         const timeHeaterOn = Date.now() - heaterOnTimestampRef.current;
         if (timeHeaterOn > HEATER_COLD_ROOM_DURATION_THRESHOLD_MS && roomAverageTemp < (idealTemperature - 3)) {
-          newAlerts.push(`ALERT: Heater on for ${Math.round(timeHeaterOn/1000)}s, window closed, but room is still cold (${roomAverageTemp.toFixed(1)}°C)! Check insulation or heater power.`);
+          newAlerts.push(t('alerts.hackathonAlerts.temperatureLow'));
         }
       }
       
-      let statusText = "System nominal.";
-      if (typeof roomAverageTemp === 'number' && roomAverageTemp > idealTemperature + 2) statusText = "Room is warmer than ideal.";
-      else if (typeof roomAverageTemp === 'number' && roomAverageTemp < idealTemperature - 2) statusText = "Room is colder than ideal.";
+      let statusText = t('alerts.hackathonAlerts.systemNominal');
+      if (typeof roomAverageTemp === 'number' && roomAverageTemp > idealTemperature + 2) statusText = t('alerts.hackathonAlerts.temperatureHigh');
+      else if (typeof roomAverageTemp === 'number' && roomAverageTemp < idealTemperature - 2) statusText = t('alerts.hackathonAlerts.temperatureLow');
       
-      if (typeof roomCO2 === 'number' && roomCO2 > idealCO2 + 200) statusText += " CO2 levels are elevated.";
+      if (typeof roomCO2 === 'number' && roomCO2 > idealCO2 + 200) statusText += " " + t('alerts.hackathonAlerts.co2High');
       
-      if (typeof roomAverageLightLevel === 'number' && roomAverageLightLevel < idealLightLevel - 0.2 && timeOfDay === "Day" && !lightsOn) statusText += " Consider turning on lights or opening window for more daylight.";
+      if (typeof roomAverageLightLevel === 'number' && roomAverageLightLevel < idealLightLevel - 0.2 && timeOfDay === "Day" && !lightsOn) statusText += " " + t('alerts.hackathonAlerts.lightLevelLow');
 
       if (statusText !== "System nominal." || newAlerts.length > 0) {
            const existingStatusIndex = newAlerts.findIndex(a => a.startsWith("STATUS:"));
@@ -437,11 +557,12 @@ export default function App() {
            }
       }
 
-      setAlerts(currentAlerts => {
-          if (JSON.stringify(currentAlerts) !== JSON.stringify(newAlerts)) {
+      setAlerts((currentAlerts: string[]) => {
+          const updatedAlerts = [...currentAlerts];
+          if (JSON.stringify(updatedAlerts) !== JSON.stringify(newAlerts)) {
               return newAlerts;
           }
-          return currentAlerts;
+          return updatedAlerts;
       });
 
     }, ANOMALY_CHECK_INTERVAL_MS);
@@ -450,7 +571,7 @@ export default function App() {
         clearInterval(anomalyIntervalId);
         heaterOnTimestampRef.current = null;
     };
-  }, [heaterOn, windowOpenness, roomAverageTemp, idealTemperature, roomCO2, idealCO2, roomAverageLightLevel, idealLightLevel, timeOfDay, lightsOn]);
+  }, [heaterOn, windowOpenness, roomAverageTemp, idealTemperature, roomCO2, idealCO2, roomAverageLightLevel, idealLightLevel, timeOfDay, lightsOn, t]);
 
 
   // --- UI Styles & Layout (Light Theme) ---
@@ -523,13 +644,13 @@ export default function App() {
     borderColor: '#545b62',
   };
 
-  const toggleButtonStyle = (isOn) => ({
+  const toggleButtonStyle = (isOn: boolean) => ({
     ...buttonStyle,
     backgroundColor: isOn ? '#28a745' : '#dc3545', 
     color: 'white',
     border: `1px solid ${isOn ? '#28a745' : '#dc3545'}`,
   });
-   const toggleButtonHoverStyle = (isOn) => ({
+   const toggleButtonHoverStyle = (isOn: boolean) => ({
     backgroundColor: isOn ? '#1e7e34' : '#bd2130',
     borderColor: isOn ? '#1e7e34' : '#bd2130',
   });
@@ -583,94 +704,93 @@ export default function App() {
   return (
     <div style={{ display: 'flex', height: '100vh', fontFamily: '"Inter", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif', background: '#e9ecef', color: '#212529' }}> 
       <div style={controlPanelStyle}>
-        <h2 style={{textAlign: 'center', color: '#007bff', marginBottom: '30px', fontSize: '1.6em', fontWeight: '700'}}>Smart Room Dashboard</h2>
+        <h2 style={{textAlign: 'center', color: '#007bff', marginBottom: '30px', fontSize: '1.6em', fontWeight: '700'}}>{t('roomSimulation.title')}</h2>
 
         <div style={controlBoxStyle}>
-            <h3 style={sectionTitleStyle}>Current Indoor Conditions</h3>
-            <div style={infoRowStyle}><label style={labelStyle}>Avg. Temperature:</label> <span style={valueStyle}>{roomAvgTempText}°C</span></div>
-            <div style={infoRowStyle}><label style={labelStyle}>CO2 Level:</label> <span style={valueStyle}>{roomCO2Text} ppm</span></div>
-            <div style={infoRowStyle}><label style={labelStyle}>Avg. Humidity:</label> <span style={valueStyle}>{roomAvgHumidityText}%</span></div>
-            <div style={infoRowStyle}><label style={labelStyle}>Avg. Light Level:</label> <span style={valueStyle}>{roomAvgLightText}</span></div>
-            <div style={infoRowStyle}><label style={labelStyle}>People in Room:</label> <span style={valueStyle}>{numPeople}</span></div>
-            <div style={infoRowStyle}><label style={labelStyle}>Heater:</label> <span style={valueStyle}>{heaterOn ? `ON (${(heaterPower * 100).toFixed(0)}%)` : 'OFF'}</span></div>
-            <div style={infoRowStyle}><label style={labelStyle}>AC:</label> <span style={valueStyle}>{acOn ? 'ON' : 'OFF'}</span></div>
-            <div style={infoRowStyle}><label style={labelStyle}>Window:</label> <span style={valueStyle}>{(windowOpenness * 100).toFixed(0)}% Open</span></div>
-            <div style={lastInfoRowStyle}><label style={labelStyle}>Lights:</label> <span style={valueStyle}>{lightsOn ? 'ON' : 'OFF'}</span></div>
+            <h3 style={sectionTitleStyle}>{t('roomSimulation.currentConditions')}</h3>
+            <div style={infoRowStyle}><label style={labelStyle}>{t('roomSimulation.avgTemperature')}:</label> <span style={valueStyle}>{roomAvgTempText}°C</span></div>
+            <div style={infoRowStyle}><label style={labelStyle}>{t('roomSimulation.co2Level')}:</label> <span style={valueStyle}>{roomCO2Text} ppm</span></div>
+            <div style={infoRowStyle}><label style={labelStyle}>{t('roomSimulation.avgHumidity')}:</label> <span style={valueStyle}>{roomAvgHumidityText}%</span></div>
+            <div style={infoRowStyle}><label style={labelStyle}>{t('roomSimulation.avgLightLevel')}:</label> <span style={valueStyle}>{roomAvgLightText}</span></div>
+            <div style={infoRowStyle}><label style={labelStyle}>{t('roomSimulation.peopleInRoom')}:</label> <span style={valueStyle}>{numPeople}</span></div>
+            <div style={infoRowStyle}><label style={labelStyle}>{t('roomSimulation.heater')}:</label> <span style={valueStyle}>{heaterOn ? `${t('ui.on')} (${(heaterPower * 100).toFixed(0)}%)` : t('ui.off')}</span></div>
+            <div style={infoRowStyle}><label style={labelStyle}>{t('roomSimulation.ac')}:</label> <span style={valueStyle}>{acOn ? t('ui.on') : t('ui.off')}</span></div>
+            <div style={infoRowStyle}><label style={labelStyle}>{t('roomSimulation.window')}:</label> <span style={valueStyle}>{(windowOpenness * 100).toFixed(0)}% {t('ui.open')}</span></div>
+            <div style={lastInfoRowStyle}><label style={labelStyle}>{t('roomSimulation.lights')}:</label> <span style={valueStyle}>{lightsOn ? t('ui.on') : t('ui.off')}</span></div>
         </div>
 
-
         <div style={controlBoxStyle}>
-            <h3 style={sectionTitleStyle}>Bratislava Weather</h3>
-            <div style={infoRowStyle}><label style={labelStyle}>Temperature:</label> <span style={valueStyle}>{outsideTempText}°C</span></div>
-            <div style={infoRowStyle}><label style={labelStyle}>Humidity:</label> <span style={valueStyle}>{outsideHumidityText}%</span></div>
-            <div style={lastInfoRowStyle}><label style={labelStyle}>Wind:</label> <span style={valueStyle}>{outsideWindText}</span></div>
+            <h3 style={sectionTitleStyle}>{t('roomSimulation.bratislavaWeather')}</h3>
+            <div style={infoRowStyle}><label style={labelStyle}>{t('roomSimulation.temperature')}:</label> <span style={valueStyle}>{outsideTempText}°C</span></div>
+            <div style={infoRowStyle}><label style={labelStyle}>{t('roomSimulation.humidity')}:</label> <span style={valueStyle}>{outsideHumidityText}%</span></div>
+            <div style={lastInfoRowStyle}><label style={labelStyle}>{t('roomSimulation.wind')}:</label> <span style={valueStyle}>{outsideWindText}</span></div>
             <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '20px', paddingTop: '15px', borderTop: '1px solid #e9ecef'}}>
-                <label style={{...labelStyle, minWidth: 'auto', fontWeight: '500'}}>Time of Day:</label> <span style={valueStyle}>{timeOfDay}</span>
+                <label style={{...labelStyle, minWidth: 'auto', fontWeight: '500'}}>{t('roomSimulation.timeOfDay')}:</label> <span style={valueStyle}>{timeOfDay === "Day" ? t('roomSimulation.day') : t('roomSimulation.night')}</span>
                 <button 
                     onClick={() => setTimeOfDay(timeOfDay === "Day" ? "Night" : "Day")} 
                     style={secondaryButtonStyle}
                     onMouseOver={e => e.currentTarget.style.backgroundColor = secondaryButtonHoverStyle.backgroundColor}
                     onMouseOut={e => e.currentTarget.style.backgroundColor = secondaryButtonStyle.backgroundColor}
-                >Toggle</button>
+                >{t('roomSimulation.toggle')}</button>
             </div>
             <button 
                 onClick={fetchBratislavaWeather} 
                 style={{...primaryButtonStyle, display: 'block', width: '100%', marginTop: '20px'}}
                 onMouseOver={e => e.currentTarget.style.backgroundColor = primaryButtonHoverStyle.backgroundColor}
                 onMouseOut={e => e.currentTarget.style.backgroundColor = primaryButtonStyle.backgroundColor}
-            >Refresh Weather</button>
+            >{t('roomSimulation.refreshWeather')}</button>
         </div>
 
         <div style={controlBoxStyle}>
-            <h3 style={sectionTitleStyle}>Target Conditions</h3>
-            <div style={sliderContainerStyle}><label style={labelStyle}>Temperature: <span style={valueStyle}>{idealTemperature}°C</span></label> <input type="range" min="15" max="30" value={idealTemperature} onChange={(e) => setIdealTemperature(parseInt(e.target.value))} style={inputStyle}/></div>
-            <div style={sliderContainerStyle}><label style={labelStyle}>Humidity: <span style={valueStyle}>{idealHumidity}%</span></label> <input type="range" min="30" max="70" value={idealHumidity} onChange={(e) => setIdealHumidity(parseInt(e.target.value))} style={inputStyle}/></div>
-            <div style={sliderContainerStyle}><label style={labelStyle}>CO2 Level: <span style={valueStyle}>{idealCO2}ppm</span></label> <input type="range" min="400" max="1200" step="50" value={idealCO2} onChange={(e) => setIdealCO2(parseInt(e.target.value))} style={inputStyle}/></div>
-            <div style={sliderContainerStyle}><label style={labelStyle}>Light Level: <span style={valueStyle}>{idealLightLevel.toFixed(1)}</span></label> <input type="range" min="0.1" max="1" step="0.1" value={idealLightLevel} onChange={(e) => setIdealLightLevel(parseFloat(e.target.value))} style={inputStyle}/></div>
+            <h3 style={sectionTitleStyle}>{t('roomSimulation.targetConditions')}</h3>
+            <div style={sliderContainerStyle}><label style={labelStyle}>{t('roomSimulation.temperature')}: <span style={valueStyle}>{idealTemperature}°C</span></label> <input type="range" min="15" max="30" value={idealTemperature} onChange={(e) => setIdealTemperature(parseInt(e.target.value))} style={inputStyle}/></div>
+            <div style={sliderContainerStyle}><label style={labelStyle}>{t('roomSimulation.humidity')}: <span style={valueStyle}>{idealHumidity}%</span></label> <input type="range" min="30" max="70" value={idealHumidity} onChange={(e) => setIdealHumidity(parseInt(e.target.value))} style={inputStyle}/></div>
+            <div style={sliderContainerStyle}><label style={labelStyle}>{t('roomSimulation.co2Level')}: <span style={valueStyle}>{idealCO2}ppm</span></label> <input type="range" min="400" max="1200" step="50" value={idealCO2} onChange={(e) => setIdealCO2(parseInt(e.target.value))} style={inputStyle}/></div>
+            <div style={sliderContainerStyle}><label style={labelStyle}>{t('roomSimulation.avgLightLevel')}: <span style={valueStyle}>{idealLightLevel.toFixed(1)}</span></label> <input type="range" min="0.1" max="1" step="0.1" value={idealLightLevel} onChange={(e) => setIdealLightLevel(parseFloat(e.target.value))} style={inputStyle}/></div>
         </div>
         
         <div style={controlBoxStyle}>
-          <h3 style={sectionTitleStyle}>Device Controls</h3>
-          <div style={sliderContainerStyle}><label style={labelStyle}>People Count: <span style={valueStyle}>{numPeople}</span></label> <input type="range" min="0" max="10" value={numPeople} onChange={(e) => setNumPeople(parseInt(e.target.value))} style={inputStyle}/></div>
+          <h3 style={sectionTitleStyle}>{t('roomSimulation.deviceControls')}</h3>
+          <div style={sliderContainerStyle}><label style={labelStyle}>{t('roomSimulation.peopleCount')}: <span style={valueStyle}>{numPeople}</span></label> <input type="range" min="0" max="10" value={numPeople} onChange={(e) => setNumPeople(parseInt(e.target.value))} style={inputStyle}/></div>
           
           <div style={{...sliderContainerStyle, justifyContent: 'space-between', marginTop: '15px'}}>
-            <label style={labelStyle}>Heater:</label>
+            <label style={labelStyle}>{t('roomSimulation.heater')}:</label>
             <div style={{display: 'flex', alignItems: 'center'}}>
                 <button 
                     onClick={() => setHeaterOn(!heaterOn)} 
                     style={toggleButtonStyle(heaterOn)}
                     onMouseOver={e => e.currentTarget.style.backgroundColor = toggleButtonHoverStyle(heaterOn).backgroundColor}
                     onMouseOut={e => e.currentTarget.style.backgroundColor = toggleButtonStyle(heaterOn).backgroundColor}
-                >{heaterOn ? 'ON' : 'OFF'}</button>
-                {heaterOn && (<input type="range" min="0.1" max="1" step="0.1" value={heaterPower} onChange={(e) => setHeaterPower(parseFloat(e.target.value))} title={`Power: ${(heaterPower * 100).toFixed(0)}%`} style={{...inputStyle, width: '120px', marginLeft: '10px'}}/>)}
+                >{heaterOn ? t('ui.on') : t('ui.off')}</button>
+                {heaterOn && (<input type="range" min="0.1" max="1" step="0.1" value={heaterPower} onChange={(e) => setHeaterPower(parseFloat(e.target.value))} title={`${t('roomSimulation.heaterPower')}: ${(heaterPower * 100).toFixed(0)}%`} style={{...inputStyle, width: '120px', marginLeft: '10px'}}/>)}
             </div>
           </div>
 
-          <div style={{...sliderContainerStyle, justifyContent: 'space-between'}}><label style={labelStyle}>Air Conditioner:</label>
+          <div style={{...sliderContainerStyle, justifyContent: 'space-between'}}><label style={labelStyle}>{t('roomSimulation.ac')}:</label>
            <button 
                 onClick={() => setAcOn(!acOn)} 
                 style={toggleButtonStyle(acOn)}
                 onMouseOver={e => e.currentTarget.style.backgroundColor = toggleButtonHoverStyle(acOn).backgroundColor}
                 onMouseOut={e => e.currentTarget.style.backgroundColor = toggleButtonStyle(acOn).backgroundColor}
-            >{acOn ? 'ON' : 'OFF'}</button>
+            >{acOn ? t('ui.on') : t('ui.off')}</button>
           </div>
 
-          <div style={sliderContainerStyle}><label style={labelStyle}>Window Openness: <span style={valueStyle}>{(windowOpenness * 100).toFixed(0)}%</span></label>
+          <div style={sliderContainerStyle}><label style={labelStyle}>{t('roomSimulation.windowOpenness')}: <span style={valueStyle}>{(windowOpenness * 100).toFixed(0)}%</span></label>
             <input type="range" min="0" max="1" step="0.05" value={windowOpenness} onChange={(e) => setWindowOpenness(parseFloat(e.target.value))} style={inputStyle}/>
           </div>
-          <div style={{...sliderContainerStyle, justifyContent: 'space-between'}}><label style={labelStyle}>Internal Lights:</label>
+          <div style={{...sliderContainerStyle, justifyContent: 'space-between'}}><label style={labelStyle}>{t('roomSimulation.internalLights')}:</label>
             <button 
                 onClick={() => setLightsOn(!lightsOn)} 
                 style={toggleButtonStyle(lightsOn)}
                 onMouseOver={e => e.currentTarget.style.backgroundColor = toggleButtonHoverStyle(lightsOn).backgroundColor}
                 onMouseOut={e => e.currentTarget.style.backgroundColor = toggleButtonStyle(lightsOn).backgroundColor}
-            >{lightsOn ? 'ON' : 'OFF'}</button>
+            >{lightsOn ? t('ui.on') : t('ui.off')}</button>
           </div>
         </div>
 
         <div style={{...controlBoxStyle, background: alerts.some(a => a.startsWith("ALERT:")) ? '#f8d7da' : '#ffffff', borderColor: alerts.some(a => a.startsWith("ALERT:")) ? '#f5c6cb' : '#ced4da' }}> 
-            <h3 style={{...sectionTitleStyle, color: alerts.some(a => a.startsWith("ALERT:")) ? '#721c24' : '#343a40'}}>System Status & Alerts</h3>
-            {alerts.length === 0 && <p style={{fontSize: '0.9em', textAlign: 'center', color: '#6c757d'}}>All systems nominal.</p>}
+            <h3 style={{...sectionTitleStyle, color: alerts.some(a => a.startsWith("ALERT:")) ? '#721c24' : '#343a40'}}>{t('roomSimulation.systemStatus')}</h3>
+            {alerts.length === 0 && <p style={{fontSize: '0.9em', textAlign: 'center', color: '#6c757d'}}>{t('roomSimulation.allSystemsNominal')}</p>}
             {alerts.map((alert, index) => (
                 <p key={index} style={{
                     fontSize: '0.85em', 
@@ -682,7 +802,7 @@ export default function App() {
                     borderLeft: `5px solid ${alert.startsWith("ALERT:") ? '#f5c6cb' : '#b8daff'}`
                 }}>{alert}</p>
             ))}
-             <p style={{fontSize: '0.8em', color: '#6c757d', marginTop: '15px', textAlign: 'center'}}>Heatmap: Sensor colors indicate local temperature.</p>
+             <p style={{fontSize: '0.8em', color: '#6c757d', marginTop: '15px', textAlign: 'center'}}>{t('roomSimulation.heatmapNote')}</p>
         </div>
       </div>
 
