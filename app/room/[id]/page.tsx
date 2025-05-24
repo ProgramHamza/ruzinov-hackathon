@@ -19,12 +19,12 @@ import { TemperatureChart } from "@/components/temperature-chart"
 const mockRoomData = {
   "room-001": {
     id: "room-001",
-    name: "Conference Room Alpha",
+    name: "Vstupná hala",
     temperature: 22.5,
     occupancy: 8,
-    maxOccupancy: 12,
+    maxOccupancy: 20,
     humidity: 45,
-    airQuality: "Excellent",
+    airQuality: "Výborná",
     energyUsage: 2.3,
     status: "optimal",
     hvacEnabled: true,
@@ -172,7 +172,7 @@ export default function RoomDetail() {
             </Card>
 
             {/* Security */}
-            <Card className="glass-card-strong success-glow">
+            {/* <Card className="glass-card-strong success-glow">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-black">
                   <Camera className="h-5 w-5 text-green-400" />
@@ -191,7 +191,7 @@ export default function RoomDetail() {
                   View Camera Feeds
                 </Button>
               </CardContent>
-            </Card>
+            </Card> */}
 
             {/* Quick Stats */}
             <Card className="glass-card-strong warning-glow">
@@ -283,14 +283,16 @@ export default function RoomDetail() {
               </Card>
             </div>
 
-            <Tabs defaultValue="overview" className="w-full">
+            <Tabs defaultValue="visualization" className="w-full">
               <TabsList className="glass-card-strong border border-white/10">
-                <TabsTrigger value="overview" className="data-[state=active]:bg-white/20">
-                  Overview
-                </TabsTrigger>
                 <TabsTrigger value="visualization" className="data-[state=active]:bg-white/20">
                   3D Visualization
                 </TabsTrigger>
+                
+                <TabsTrigger value="overview" className="data-[state=active]:bg-white/20">
+                  Overview
+                </TabsTrigger>
+
                 <TabsTrigger value="analytics" className="data-[state=active]:bg-white/20">
                   Analytics
                 </TabsTrigger>
@@ -298,7 +300,25 @@ export default function RoomDetail() {
                   History
                 </TabsTrigger>
               </TabsList>
-
+              <TabsContent value="visualization">
+                <Card className="glass-card neon-glow">
+                  <CardHeader>
+                    <CardTitle className="text-black">3D Room Visualization</CardTitle>
+                    <CardDescription className="text-gray-400">
+                      Interactive 3D model with real-time data overlay
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="p-0">
+                    <div className="h-96 w-full rounded-lg overflow-hidden">
+                      <RoomVisualization
+                        temperature={room.temperature}
+                        occupancy={room.occupancy}
+                        maxOccupancy={room.maxOccupancy}
+                      />
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
               <TabsContent value="overview" className="space-y-6">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   <Card className="glass-card neon-glow">
@@ -321,26 +341,6 @@ export default function RoomDetail() {
                     </CardContent>
                   </Card>
                 </div>
-              </TabsContent>
-
-              <TabsContent value="visualization">
-                <Card className="glass-card neon-glow">
-                  <CardHeader>
-                    <CardTitle className="text-black">3D Room Visualization</CardTitle>
-                    <CardDescription className="text-gray-400">
-                      Interactive 3D model with real-time data overlay
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="p-0">
-                    <div className="h-96 w-full rounded-lg overflow-hidden">
-                      <RoomVisualization
-                        temperature={room.temperature}
-                        occupancy={room.occupancy}
-                        maxOccupancy={room.maxOccupancy}
-                      />
-                    </div>
-                  </CardContent>
-                </Card>
               </TabsContent>
 
               <TabsContent value="analytics">

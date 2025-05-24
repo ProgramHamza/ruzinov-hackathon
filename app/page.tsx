@@ -4,6 +4,7 @@
 import React, { useEffect, useRef, Suspense, useState, useMemo } from 'react'
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation';
 
 import { Canvas, useLoader, useFrame } from '@react-three/fiber'
 import { OrbitControls, Html, useProgress } from '@react-three/drei'
@@ -197,6 +198,47 @@ const mockAlerts = [
 // Prevent server-side rendering
 const Viewer = dynamic(() => Promise.resolve(ThreeDViewer), { ssr: false });
 
+
+function Pinpoint({
+  position,
+  label,
+  targetUrl,
+}: {
+  position: [number, number, number];
+  label?: string;
+  targetUrl: string;
+}) {
+  const router = useRouter();
+
+  return (
+    <group position={position} onClick={() => router.push(targetUrl)} style={{ cursor: 'pointer' }}>
+      {/* Visual Sphere */}
+      <mesh>
+        <sphereGeometry args={[0.05, 16, 16]} />
+        <meshStandardMaterial color="red" />
+      </mesh>
+      {/* Label */}
+      {label && (
+        <Html distanceFactor={10}>
+          <div
+            style={{
+              background: 'white',
+              padding: '2px 4px',
+              borderRadius: '4px',
+              fontSize: '12px',
+              pointerEvents: 'none',
+            }}
+          >
+            {label}
+          </div>
+        </Html>
+      )}
+    </group>
+  );
+}
+
+
+
 function Loader() {
   const { progress } = useProgress();
   return <Html center>{progress.toFixed(0)} % loaded</Html>;
@@ -228,11 +270,10 @@ function Model({ path }) {
 }
 
 function ThreeDViewer() {
-  // Example: generate fake heat data array to simulate heatmap
   const heatData = React.useMemo(() => {
-    const count = 31 * 31 // vertices in a 30x30 grid
-    return Array.from({ length: count }, () => Math.random())
-  }, [])
+    const count = 31 * 31;
+    return Array.from({ length: count }, () => Math.random());
+  }, []);
 
   return (
     <div style={{ width: '600px', height: '300px', margin: '40px auto', border: '2px solid #ccc', borderRadius: '8px', overflow: 'hidden', boxShadow: '0 4px 10px rgba(255, 255, 255, 0.1)' }}>
@@ -241,14 +282,17 @@ function ThreeDViewer() {
         <directionalLight position={[10, 10, 5]} intensity={1.5} />
         <Suspense fallback={<Loader />}>
           <Model path="/model.obj" />
-          {/* <HeatmapCloth heatData={heatData} width={3} height={3} segmentsX={30} segmentsY={30} /> */}
+
+          {/* Clickable Pinpoints */}
+          <Pinpoint position={[0, 0, 0]} label="Room 001" targetUrl="/room/room-001" />
+          <Pinpoint position={[1, 0.5, -1]} label="Room 002" targetUrl="/room/room-001" />
+          <Pinpoint position={[-1, 1, 1]} label="Room 003" targetUrl="/room/room-001" />
         </Suspense>
         <OrbitControls target={[0, 0, 0]} minPolarAngle={0} maxPolarAngle={Math.PI / 2} />
       </Canvas>
     </div>
-  )
+  );
 }
-
 
 
 
@@ -513,12 +557,12 @@ export default function Dashboard() {
 
     {/* 3D Visualization Section */}
     <section>
-      <Card className="glass-card neon-glow flex flex-col items-center text-center">
+      <Card className="glass-card neon-glow flex flex-col items-top text-center">
         <CardHeader>
           <CardTitle className="text-black">Interactive 3D model of {selectedRoom?.name}</CardTitle>
           <CardDescription className="text-gray-400">Explore the room in 3D</CardDescription>
         </CardHeader>
-        <CardContent className="w-full flex justify-center items-center p-0">
+        <CardContent className="w-full flex justify-center items-top p-0">
           <div className="h-96 w-full max-w-4xl rounded-lg overflow-hidden">
             <Viewer />
           </div>
