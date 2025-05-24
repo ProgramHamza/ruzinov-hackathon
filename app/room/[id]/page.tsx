@@ -13,6 +13,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { TemperatureChart } from "@/components/temperature-chart"
 import { EnergyChart } from "@/components/energy-chart"
+import Link from 'next/link'
 
 import {
   ArrowLeft,
@@ -257,10 +258,12 @@ export default function SmartHomeDashboard() {
         <div className="container mx-auto px-4 sm:px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
+              <Link href="/" passHref>
               <Button variant="ghost" size="sm">
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Späť na prehľad
               </Button>
+              </Link>
               <div>
                 <h1 className="text-xl sm:text-2xl font-bold">{room.name}</h1>
                 <div className="flex items-center gap-3 mt-1 flex-wrap">
