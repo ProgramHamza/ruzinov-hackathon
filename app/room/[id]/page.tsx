@@ -71,9 +71,9 @@ export default function RoomDetail() {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
         <div className="text-center glass-card p-8 rounded-lg">
-          <h1 className="text-2xl font-bold mb-4 text-white">Room Not Found</h1>
+          <h1 className="text-2xl font-bold mb-4 text-black">Room Not Found</h1>
           <Link href="/">
-            <Button className="glass-card border-white/20 text-white hover:bg-white/10">
+            <Button className="glass-card border-white/20 text-black hover:bg-white/10">
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Dashboard
             </Button>
@@ -97,14 +97,14 @@ export default function RoomDetail() {
   }
 
   return (
-    <div className="min-h-screen bg-black">
+    <div className="min-h-screen bg-white">
       {/* Header */}
       <header className="glass-card-strong border-b border-white/10 sticky top-0 z-50">
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <Link href="/">
-                <Button variant="ghost" size="sm" className="text-white hover:bg-white/10">
+                <Button variant="ghost" size="sm" className="text-black hover:bg-white/10">
                   <ArrowLeft className="h-4 w-4 mr-2" />
                   Back to Dashboard
                 </Button>
@@ -134,7 +134,7 @@ export default function RoomDetail() {
             {/* Environmental Controls */}
             <Card className="glass-card-strong neon-glow">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-white">
+                <CardTitle className="flex items-center gap-2 text-black">
                   <Wind className="h-5 w-5 text-blue-400" />
                   Environmental Controls
                 </CardTitle>
@@ -143,7 +143,7 @@ export default function RoomDetail() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Wind className="h-4 w-4 text-blue-400" />
-                    <span className="font-medium text-white">HVAC System</span>
+                    <span className="font-medium text-black">HVAC System</span>
                   </div>
                   <Switch
                     checked={hvacEnabled}
@@ -156,7 +156,7 @@ export default function RoomDetail() {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <Lightbulb className="h-4 w-4 text-yellow-400" />
-                      <span className="font-medium text-white">Lighting Level</span>
+                      <span className="font-medium text-black">Lighting Level</span>
                     </div>
                     <span className="text-sm text-gray-400">{lightingLevel[0]}%</span>
                   </div>
@@ -174,19 +174,19 @@ export default function RoomDetail() {
             {/* Security */}
             <Card className="glass-card-strong success-glow">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-white">
+                <CardTitle className="flex items-center gap-2 text-black">
                   <Camera className="h-5 w-5 text-green-400" />
                   Security Systems
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <span className="font-medium text-white">Active Cameras</span>
+                  <span className="font-medium text-black">Active Cameras</span>
                   <Badge variant="outline" className="border-green-400 text-green-400">
                     {room.securityCameras} online
                   </Badge>
                 </div>
-                <Button variant="outline" className="w-full glass-card border-white/20 text-white hover:bg-white/10">
+                <Button variant="outline" className="w-full glass-card border-white/20 text-black hover:bg-white/10">
                   <Camera className="h-4 w-4 mr-2" />
                   View Camera Feeds
                 </Button>
@@ -196,7 +196,7 @@ export default function RoomDetail() {
             {/* Quick Stats */}
             <Card className="glass-card-strong warning-glow">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-white">
+                <CardTitle className="flex items-center gap-2 text-black">
                   <Activity className="h-5 w-5 text-purple-400" />
                   Quick Stats
                 </CardTitle>
@@ -208,11 +208,11 @@ export default function RoomDetail() {
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-gray-400">Humidity</span>
-                  <span className="text-white font-medium">{room.humidity}%</span>
+                  <span className="text-black font-medium">{room.humidity}%</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-gray-400">Efficiency</span>
-                  <span className="text-white font-medium">{room.efficiency}%</span>
+                  <span className="text-black font-medium">{room.efficiency}%</span>
                 </div>
               </CardContent>
             </Card>
@@ -227,11 +227,11 @@ export default function RoomDetail() {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm text-gray-400">Temperature</p>
-                      <p className="text-3xl font-bold text-white">{room.temperature.toFixed(1)}°C</p>
+                      <p className="text-3xl font-bold text-black">{room.temperature.toFixed(1)}°C</p>
                       <p className="text-xs text-blue-400 mt-1">Target: 22.0°C</p>
                     </div>
                     <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
-                      <Thermometer className="h-6 w-6 text-white" />
+                      <Thermometer className="h-6 w-6 text-black" />
                     </div>
                   </div>
                 </CardContent>
@@ -242,11 +242,11 @@ export default function RoomDetail() {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm text-gray-400">Occupancy</p>
-                      <p className="text-3xl font-bold text-white">{room.occupancy}</p>
+                      <p className="text-3xl font-bold text-black">{room.occupancy}</p>
                       <Progress value={(room.occupancy / room.maxOccupancy) * 100} className="mt-2 h-2 bg-gray-800" />
                     </div>
                     <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center">
-                      <Users className="h-6 w-6 text-white" />
+                      <Users className="h-6 w-6 text-black" />
                     </div>
                   </div>
                 </CardContent>
@@ -257,11 +257,11 @@ export default function RoomDetail() {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm text-gray-400">Energy Usage</p>
-                      <p className="text-3xl font-bold text-white">{room.energyUsage.toFixed(1)} kW</p>
+                      <p className="text-3xl font-bold text-black">{room.energyUsage.toFixed(1)} kW</p>
                       <p className="text-xs text-green-400 mt-1">-12% vs yesterday</p>
                     </div>
                     <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-yellow-500 to-orange-500 flex items-center justify-center">
-                      <Zap className="h-6 w-6 text-white" />
+                      <Zap className="h-6 w-6 text-black" />
                     </div>
                   </div>
                 </CardContent>
@@ -272,11 +272,11 @@ export default function RoomDetail() {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm text-gray-400">Efficiency</p>
-                      <p className="text-3xl font-bold text-white">{room.efficiency}%</p>
+                      <p className="text-3xl font-bold text-black">{room.efficiency}%</p>
                       <p className="text-xs text-purple-400 mt-1">+3% this week</p>
                     </div>
                     <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
-                      <Activity className="h-6 w-6 text-white" />
+                      <Activity className="h-6 w-6 text-black" />
                     </div>
                   </div>
                 </CardContent>
@@ -303,7 +303,7 @@ export default function RoomDetail() {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   <Card className="glass-card neon-glow">
                     <CardHeader>
-                      <CardTitle className="text-white">Energy Consumption</CardTitle>
+                      <CardTitle className="text-black">Energy Consumption</CardTitle>
                       <CardDescription className="text-gray-400">Real-time energy monitoring</CardDescription>
                     </CardHeader>
                     <CardContent>
@@ -313,7 +313,7 @@ export default function RoomDetail() {
 
                   <Card className="glass-card neon-glow">
                     <CardHeader>
-                      <CardTitle className="text-white">Temperature Trends</CardTitle>
+                      <CardTitle className="text-black">Temperature Trends</CardTitle>
                       <CardDescription className="text-gray-400">24-hour temperature history</CardDescription>
                     </CardHeader>
                     <CardContent>
@@ -326,7 +326,7 @@ export default function RoomDetail() {
               <TabsContent value="visualization">
                 <Card className="glass-card neon-glow">
                   <CardHeader>
-                    <CardTitle className="text-white">3D Room Visualization</CardTitle>
+                    <CardTitle className="text-black">3D Room Visualization</CardTitle>
                     <CardDescription className="text-gray-400">
                       Interactive 3D model with real-time data overlay
                     </CardDescription>
@@ -346,7 +346,7 @@ export default function RoomDetail() {
               <TabsContent value="analytics">
                 <Card className="glass-card neon-glow">
                   <CardHeader>
-                    <CardTitle className="text-white">Room Analytics</CardTitle>
+                    <CardTitle className="text-black">Room Analytics</CardTitle>
                     <CardDescription className="text-gray-400">
                       Detailed performance metrics and insights
                     </CardDescription>
@@ -354,13 +354,13 @@ export default function RoomDetail() {
                   <CardContent>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                       <div className="text-center">
-                        <h3 className="font-medium mb-2 text-white">Energy Efficiency</h3>
+                        <h3 className="font-medium mb-2 text-black">Energy Efficiency</h3>
                         <div className="text-3xl font-bold text-blue-400 mb-2">{room.efficiency}%</div>
                         <Progress value={room.efficiency} className="h-2 bg-gray-800" />
                       </div>
 
                       <div className="text-center">
-                        <h3 className="font-medium mb-2 text-white">Utilization Rate</h3>
+                        <h3 className="font-medium mb-2 text-black">Utilization Rate</h3>
                         <div className="text-3xl font-bold text-green-400 mb-2">
                           {Math.round((room.occupancy / room.maxOccupancy) * 100)}%
                         </div>
@@ -368,7 +368,7 @@ export default function RoomDetail() {
                       </div>
 
                       <div className="text-center">
-                        <h3 className="font-medium mb-2 text-white">Climate Control</h3>
+                        <h3 className="font-medium mb-2 text-black">Climate Control</h3>
                         <div className="text-3xl font-bold text-yellow-400 mb-2">Optimal</div>
                         <Progress value={92} className="h-2 bg-gray-800" />
                       </div>
@@ -380,7 +380,7 @@ export default function RoomDetail() {
               <TabsContent value="history">
                 <Card className="glass-card neon-glow">
                   <CardHeader>
-                    <CardTitle className="text-white">Historical Data</CardTitle>
+                    <CardTitle className="text-black">Historical Data</CardTitle>
                     <CardDescription className="text-gray-400">Room metrics over the past 30 days</CardDescription>
                   </CardHeader>
                   <CardContent>

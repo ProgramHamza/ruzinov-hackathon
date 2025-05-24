@@ -200,39 +200,43 @@ export default function SensorsPage() {
   const lowBatterySensors = sensors.filter((s) => s.batteryLevel && s.batteryLevel < 30).length
 
   return (
-    <div className="min-h-screen bg-black">
-      {/* Header */}
+    <div className="min-h-screen bg-white">
+           {/* Animated Header */}
       <header className="glass-card-strong border-b border-white/10 sticky top-0 z-50">
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center space-x-4">
+              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center neon-glow">
+                <Activity className="h-6 w-6 text-black" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-black">
+                  Digital Twin Control System
+                </h1>
+                <p className="text-sm text-gray-400">Real-time facility management</p>
+              </div>
+            </div>
+            <nav className="flex space-x-2">
               <Link href="/">
-                <Button variant="ghost" size="sm" className="text-white hover:bg-white/10">
-                  <ArrowLeft className="h-4 w-4 mr-2" />
-                  Back to Dashboard
+                <Button variant="ghost" className="text-black hover:bg-white/10">
+                  Dashboard
                 </Button>
               </Link>
-              <div>
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
-                  Sensors & Controllers
-                </h1>
-                <p className="text-sm text-gray-400">Monitor and manage all IoT devices</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-4">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                <Input
-                  placeholder="Search devices..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 w-64 glass-card border-white/20 text-white placeholder:text-gray-400"
-                />
-              </div>
-            </div>
+              <Link href="/sensors">
+                <Button variant="ghost" className="text-black hover:bg-white/10">
+                  Sensors
+                </Button>
+              </Link>
+              <Link href="/analytics">
+                <Button variant="ghost" className="text-black hover:bg-white/10">
+                  Analytics
+                </Button>
+              </Link>
+            </nav>
           </div>
         </div>
       </header>
+
 
       <div className="container mx-auto px-6 py-8">
         {/* Overview Stats */}
@@ -242,11 +246,11 @@ export default function SensorsPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-400">Online Sensors</p>
-                  <p className="text-3xl font-bold text-white">{onlineSensors}</p>
+                  <p className="text-3xl font-bold text-black">{onlineSensors}</p>
                   <p className="text-xs text-green-400 mt-1">of {sensors.length} total</p>
                 </div>
                 <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center">
-                  <Activity className="h-6 w-6 text-white" />
+                  <Activity className="h-6 w-6 text-black" />
                 </div>
               </div>
             </CardContent>
@@ -257,11 +261,11 @@ export default function SensorsPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-400">Active Controllers</p>
-                  <p className="text-3xl font-bold text-white">{onlineControllers}</p>
+                  <p className="text-3xl font-bold text-black">{onlineControllers}</p>
                   <p className="text-xs text-blue-400 mt-1">of {controllers.length} total</p>
                 </div>
                 <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
-                  <Shield className="h-6 w-6 text-white" />
+                  <Shield className="h-6 w-6 text-black" />
                 </div>
               </div>
             </CardContent>
@@ -272,11 +276,11 @@ export default function SensorsPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-400">Low Battery</p>
-                  <p className="text-3xl font-bold text-white">{lowBatterySensors}</p>
+                  <p className="text-3xl font-bold text-black">{lowBatterySensors}</p>
                   <p className="text-xs text-red-400 mt-1">need attention</p>
                 </div>
                 <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-red-500 to-pink-500 flex items-center justify-center">
-                  <Zap className="h-6 w-6 text-white" />
+                  <Zap className="h-6 w-6 text-black" />
                 </div>
               </div>
             </CardContent>
@@ -287,11 +291,11 @@ export default function SensorsPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-400">System Health</p>
-                  <p className="text-3xl font-bold text-white">94%</p>
+                  <p className="text-3xl font-bold text-black">94%</p>
                   <p className="text-xs text-green-400 mt-1">excellent</p>
                 </div>
                 <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
-                  <Activity className="h-6 w-6 text-white" />
+                  <Activity className="h-6 w-6 text-black" />
                 </div>
               </div>
             </CardContent>
@@ -325,7 +329,7 @@ export default function SensorsPage() {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         {getSensorIcon(sensor.type)}
-                        <CardTitle className="text-lg text-white">{sensor.name}</CardTitle>
+                        <CardTitle className="text-lg text-black">{sensor.name}</CardTitle>
                       </div>
                       <div className="flex items-center gap-2">
                         {sensor.status === "online" ? (
@@ -342,17 +346,17 @@ export default function SensorsPage() {
                     <div className="space-y-4">
                       <div>
                         <p className="text-sm font-medium text-gray-400">Current Value</p>
-                        <p className="text-2xl font-bold text-white">{sensor.value}</p>
+                        <p className="text-2xl font-bold text-black">{sensor.value}</p>
                       </div>
 
                       <div className="grid grid-cols-2 gap-4 text-sm">
                         <div>
                           <span className="text-gray-400">Signal</span>
-                          <p className="text-white font-medium">{getSignalStrength(sensor.signalStrength)}</p>
+                          <p className="text-black font-medium">{getSignalStrength(sensor.signalStrength)}</p>
                         </div>
                         <div>
                           <span className="text-gray-400">Updated</span>
-                          <p className="text-white font-medium">{sensor.lastUpdate.split(" ")[1]}</p>
+                          <p className="text-black font-medium">{sensor.lastUpdate.split(" ")[1]}</p>
                         </div>
                       </div>
 
@@ -365,7 +369,7 @@ export default function SensorsPage() {
 
                       <Button
                         variant="outline"
-                        className="w-full glass-card border-white/20 text-white hover:bg-white/10"
+                        className="w-full glass-card border-white/20 text-black hover:bg-white/10"
                       >
                         Configure Device
                       </Button>
@@ -393,7 +397,7 @@ export default function SensorsPage() {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         {getSensorIcon(controller.type)}
-                        <CardTitle className="text-lg text-white">{controller.name}</CardTitle>
+                        <CardTitle className="text-lg text-black">{controller.name}</CardTitle>
                       </div>
                       <Badge variant={getStatusColor(controller.status) as any}>{controller.status}</Badge>
                     </div>
@@ -405,7 +409,7 @@ export default function SensorsPage() {
                     <div className="space-y-4">
                       <div className="flex justify-between items-center">
                         <span className="text-sm font-medium text-gray-400">Mode</span>
-                        <Badge variant="outline" className="border-white/20 text-white">
+                        <Badge variant="outline" className="border-white/20 text-black">
                           {controller.mode}
                         </Badge>
                       </div>
@@ -422,12 +426,12 @@ export default function SensorsPage() {
 
                       <div className="text-sm text-gray-400">
                         <span>Last Update: </span>
-                        <span className="text-white">{controller.lastUpdate.split(" ")[1]}</span>
+                        <span className="text-black">{controller.lastUpdate.split(" ")[1]}</span>
                       </div>
 
                       <Button
                         variant="outline"
-                        className="w-full glass-card border-white/20 text-white hover:bg-white/10"
+                        className="w-full glass-card border-white/20 text-black hover:bg-white/10"
                       >
                         Advanced Settings
                       </Button>

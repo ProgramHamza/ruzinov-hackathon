@@ -235,7 +235,7 @@ function ThreeDViewer() {
   }, [])
 
   return (
-    <div style={{ width: '600px', height: '400px', margin: '40px auto', border: '2px solid #ccc', borderRadius: '8px', overflow: 'hidden', boxShadow: '0 4px 10px rgba(0,0,0,0.1)' }}>
+    <div style={{ width: '600px', height: '300px', margin: '40px auto', border: '2px solid #ccc', borderRadius: '8px', overflow: 'hidden', boxShadow: '0 4px 10px rgba(255, 255, 255, 0.1)' }}>
       <Canvas camera={{ position: [0, 2, 5], fov: 75 }}>
         <ambientLight intensity={0.5} />
         <directionalLight position={[10, 10, 5]} intensity={1.5} />
@@ -307,17 +307,17 @@ export default function Dashboard() {
   const avgEfficiency = rooms.reduce((sum, room) => sum + room.efficiency, 0) / rooms.length
 
   return (
-    <div className="min-h-screen bg-black">
+    <div className="min-h-screen bg-white">
       {/* Animated Header */}
       <header className="glass-card-strong border-b border-white/10 sticky top-0 z-50">
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center neon-glow">
-                <Activity className="h-6 w-6 text-white" />
+                <Activity className="h-6 w-6 text-black" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+                <h1 className="text-2xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-black">
                   Digital Twin Control System
                 </h1>
                 <p className="text-sm text-gray-400">Real-time facility management</p>
@@ -325,17 +325,17 @@ export default function Dashboard() {
             </div>
             <nav className="flex space-x-2">
               <Link href="/">
-                <Button variant="ghost" className="text-white hover:bg-white/10">
+                <Button variant="ghost" className="text-black hover:bg-white/10">
                   Dashboard
                 </Button>
               </Link>
               <Link href="/sensors">
-                <Button variant="ghost" className="text-white hover:bg-white/10">
+                <Button variant="ghost" className="text-black hover:bg-white/10">
                   Sensors
                 </Button>
               </Link>
               <Link href="/analytics">
-                <Button variant="ghost" className="text-white hover:bg-white/10">
+                <Button variant="ghost" className="text-black hover:bg-white/10">
                   Analytics
                 </Button>
               </Link>
@@ -352,14 +352,14 @@ export default function Dashboard() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-400">Total Energy</p>
-                  <p className="text-3xl font-bold text-white">{totalEnergy.toFixed(1)}</p>
+                  <p className="text-3xl font-bold text-black">{totalEnergy.toFixed(1)}</p>
                   <p className="text-xs text-green-400 flex items-center mt-1">
                     <TrendingUp className="h-3 w-3 mr-1" />
                     -12% vs yesterday
                   </p>
                 </div>
                 <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-yellow-500 to-orange-500 flex items-center justify-center">
-                  <Zap className="h-6 w-6 text-white" />
+                  <Zap className="h-6 w-6 text-black" />
                 </div>
               </div>
             </CardContent>
@@ -370,14 +370,14 @@ export default function Dashboard() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-400">Occupancy</p>
-                  <p className="text-3xl font-bold text-white">{totalOccupancy}</p>
+                  <p className="text-3xl font-bold text-black">{totalOccupancy}</p>
                   <p className="text-xs text-blue-400 flex items-center mt-1">
                     <Users className="h-3 w-3 mr-1" />
                     across {rooms.length} rooms
                   </p>
                 </div>
                 <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
-                  <Users className="h-6 w-6 text-white" />
+                  <Users className="h-6 w-6 text-black" />
                 </div>
               </div>
             </CardContent>
@@ -388,14 +388,14 @@ export default function Dashboard() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-400">Avg Temperature</p>
-                  <p className="text-3xl font-bold text-white">{avgTemperature.toFixed(1)}°C</p>
+                  <p className="text-3xl font-bold text-black">{avgTemperature.toFixed(1)}°C</p>
                   <p className="text-xs text-green-400 flex items-center mt-1">
                     <Thermometer className="h-3 w-3 mr-1" />
                     optimal range
                   </p>
                 </div>
                 <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center">
-                  <Thermometer className="h-6 w-6 text-white" />
+                  <Thermometer className="h-6 w-6 text-black" />
                 </div>
               </div>
             </CardContent>
@@ -406,14 +406,14 @@ export default function Dashboard() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-400">System Efficiency</p>
-                  <p className="text-3xl font-bold text-white">{avgEfficiency.toFixed(0)}%</p>
+                  <p className="text-3xl font-bold text-black">{avgEfficiency.toFixed(0)}%</p>
                   <p className="text-xs text-purple-400 flex items-center mt-1">
                     <Activity className="h-3 w-3 mr-1" />
                     +5% this week
                   </p>
                 </div>
                 <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
-                  <Activity className="h-6 w-6 text-white" />
+                  <Activity className="h-6 w-6 text-black" />
                 </div>
               </div>
             </CardContent>
@@ -425,7 +425,7 @@ export default function Dashboard() {
           <div className="xl:col-span-1 space-y-6">
             <Card className="glass-card-strong alert-glow">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-white">
+                <CardTitle className="flex items-center gap-2 text-black">
                   <AlertTriangle className="h-5 w-5 text-red-400" />
                   System Alerts
                   <Badge variant="destructive" className="ml-auto">
@@ -441,7 +441,7 @@ export default function Dashboard() {
                       {getAlertIcon(alert.type)}
                       <div className="flex-1">
                         <div className="flex items-center justify-between mb-1">
-                          <h4 className="font-medium text-white">{alert.title}</h4>
+                          <h4 className="font-medium text-black">{alert.title}</h4>
                           <Badge
                             variant={
                               alert.type === "critical"
@@ -470,7 +470,7 @@ export default function Dashboard() {
             {/* Real-time Charts */}
             <Card className="glass-card success-glow">
               <CardHeader>
-                <CardTitle className="text-white">Energy Consumption</CardTitle>
+                <CardTitle className="text-black">Energy Consumption</CardTitle>
                 <CardDescription className="text-gray-400">Last 24 hours</CardDescription>
               </CardHeader>
               <CardContent>
@@ -482,7 +482,7 @@ export default function Dashboard() {
 <div className="grid grid-cols-1 gap-6">
   <Card className="glass-card neon-glow flex flex-col justify-center items-center text-center">
     <CardHeader>
-      <CardTitle className="text-white">Temperature Trends</CardTitle>
+      <CardTitle className="text-black">Temperature Trends</CardTitle>
       <CardDescription className="text-gray-400">Real-time temperature monitoring</CardDescription>
     </CardHeader>
     <CardContent className="w-full flex justify-center items-center">
@@ -493,7 +493,7 @@ export default function Dashboard() {
 
         {/* <Card className="glass-card neon-glow flex flex-col justify-center items-center text-center">
           <CardHeader>
-            <CardTitle className="text-white">Occupancy Patterns</CardTitle>
+            <CardTitle className="text-black">Occupancy Patterns</CardTitle>
             <CardDescription className="text-gray-400">Daily occupancy distribution</CardDescription>
           </CardHeader>
           <CardContent className="w-full flex justify-center items-center">
@@ -515,7 +515,7 @@ export default function Dashboard() {
     <section>
       <Card className="glass-card neon-glow flex flex-col items-center text-center">
         <CardHeader>
-          <CardTitle className="text-white">Interactive 3D model of {selectedRoom?.name}</CardTitle>
+          <CardTitle className="text-black">Interactive 3D model of {selectedRoom?.name}</CardTitle>
           <CardDescription className="text-gray-400">Explore the room in 3D</CardDescription>
         </CardHeader>
         <CardContent className="w-full flex justify-center items-center p-0">
@@ -527,7 +527,7 @@ export default function Dashboard() {
     </section>
 
     <section>
-      <h2 className="text-xl font-semibold text-white mb-4 text-center">Room Overview</h2>
+      <h2 className="text-xl font-semibold text-black mb-4 text-center">Room Overview</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {rooms.map((room) => (
           <Card
@@ -539,7 +539,7 @@ export default function Dashboard() {
           >
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-lg text-white">{room.name}</CardTitle>
+                <CardTitle className="text-lg text-black">{room.name}</CardTitle>
                 <Badge variant={getStatusColor(room.status) as any} className="capitalize">
                   {room.status}
                 </Badge>
@@ -552,14 +552,14 @@ export default function Dashboard() {
                     <Thermometer className="h-4 w-4 text-blue-400" />
                     <span className="text-sm text-gray-400">Temperature</span>
                   </div>
-                  <p className="text-xl font-bold text-white">{room.temperature.toFixed(1)}°C</p>
+                  <p className="text-xl font-bold text-black">{room.temperature.toFixed(1)}°C</p>
                 </div>
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
                     <Users className="h-4 w-4 text-green-400" />
                     <span className="text-sm text-gray-400">Occupancy</span>
                   </div>
-                  <p className="text-xl font-bold text-white">
+                  <p className="text-xl font-bold text-black">
                     {room.occupancy}/{room.maxOccupancy}
                   </p>
                 </div>
@@ -568,11 +568,11 @@ export default function Dashboard() {
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-400">Energy Usage</span>
-                  <span className="text-white font-medium">{room.energyUsage.toFixed(1)} kW</span>
+                  <span className="text-black font-medium">{room.energyUsage.toFixed(1)} kW</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-400">Efficiency</span>
-                  <span className="text-white font-medium">{room.efficiency}%</span>
+                  <span className="text-black font-medium">{room.efficiency}%</span>
                 </div>
                 <Progress value={room.efficiency} className="h-2 bg-gray-800" />
               </div>
@@ -581,7 +581,7 @@ export default function Dashboard() {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="w-full glass-card border-white/20 text-white hover:bg-white/10"
+                  className="w-full glass-card border-white/20 text-black hover:bg-white/10"
                 >
                   <Eye className="h-4 w-4 mr-2" />
                   View Details

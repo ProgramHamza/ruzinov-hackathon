@@ -40,34 +40,44 @@ export default function AnalyticsPage() {
   ]
 
   return (
-    <div className="min-h-screen bg-black">
+    <div className="min-h-screen bg-white">
       {/* Header */}
+           {/* Animated Header */}
       <header className="glass-card-strong border-b border-white/10 sticky top-0 z-50">
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Link href="/">
-                <Button variant="ghost" size="sm" className="text-white hover:bg-white/10">
-                  <ArrowLeft className="h-4 w-4 mr-2" />
-                  Back to Dashboard
-                </Button>
-              </Link>
+            <div className="flex items-center space-x-4">
+              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center neon-glow">
+                <Activity className="h-6 w-6 text-black" />
+              </div>
               <div>
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
-                  Analytics & Reporting
+                <h1 className="text-2xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-black">
+                  Digital Twin Control System
                 </h1>
-                <p className="text-sm text-gray-400">Advanced insights and predictive analytics</p>
+                <p className="text-sm text-gray-400">Real-time facility management</p>
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              <Button variant="outline" className="glass-card border-white/20 text-white hover:bg-white/10">
-                <Calendar className="h-4 w-4 mr-2" />
-                Export Report
-              </Button>
-            </div>
+            <nav className="flex space-x-2">
+              <Link href="/">
+                <Button variant="ghost" className="text-black hover:bg-white/10">
+                  Dashboard
+                </Button>
+              </Link>
+              <Link href="/sensors">
+                <Button variant="ghost" className="text-black hover:bg-white/10">
+                  Sensors
+                </Button>
+              </Link>
+              <Link href="/analytics">
+                <Button variant="ghost" className="text-black hover:bg-white/10">
+                  Analytics
+                </Button>
+              </Link>
+            </nav>
           </div>
         </div>
       </header>
+
 
       <div className="container mx-auto px-6 py-8">
         {/* Key Performance Indicators */}
@@ -77,14 +87,14 @@ export default function AnalyticsPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-400">Energy Saved</p>
-                  <p className="text-3xl font-bold text-white">{energyData.savings} kWh</p>
+                  <p className="text-3xl font-bold text-black">{energyData.savings} kWh</p>
                   <div className="flex items-center gap-1 mt-1">
                     <TrendingDown className="h-3 w-3 text-green-400" />
                     <span className="text-xs text-green-400">12.1% vs last month</span>
                   </div>
                 </div>
                 <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center">
-                  <Zap className="h-6 w-6 text-white" />
+                  <Zap className="h-6 w-6 text-black" />
                 </div>
               </div>
             </CardContent>
@@ -95,14 +105,14 @@ export default function AnalyticsPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-400">Cost Savings</p>
-                  <p className="text-3xl font-bold text-white">${energyData.costSavings.toFixed(0)}</p>
+                  <p className="text-3xl font-bold text-black">${energyData.costSavings.toFixed(0)}</p>
                   <div className="flex items-center gap-1 mt-1">
                     <TrendingDown className="h-3 w-3 text-green-400" />
                     <span className="text-xs text-green-400">8.7% vs last month</span>
                   </div>
                 </div>
                 <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-yellow-500 to-orange-500 flex items-center justify-center">
-                  <DollarSign className="h-6 w-6 text-white" />
+                  <DollarSign className="h-6 w-6 text-black" />
                 </div>
               </div>
             </CardContent>
@@ -113,14 +123,14 @@ export default function AnalyticsPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-400">System Efficiency</p>
-                  <p className="text-3xl font-bold text-white">{energyData.efficiency}%</p>
+                  <p className="text-3xl font-bold text-black">{energyData.efficiency}%</p>
                   <div className="flex items-center gap-1 mt-1">
                     <TrendingUp className="h-3 w-3 text-green-400" />
                     <span className="text-xs text-green-400">3.2% improvement</span>
                   </div>
                 </div>
                 <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
-                  <Activity className="h-6 w-6 text-white" />
+                  <Activity className="h-6 w-6 text-black" />
                 </div>
               </div>
             </CardContent>
@@ -131,13 +141,13 @@ export default function AnalyticsPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-400">ROI</p>
-                  <p className="text-3xl font-bold text-white">{financialData.roi}%</p>
+                  <p className="text-3xl font-bold text-black">{financialData.roi}%</p>
                   <div className="flex items-center gap-1 mt-1">
                     <span className="text-xs text-blue-400">{financialData.paybackPeriod} month payback</span>
                   </div>
                 </div>
                 <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
-                  <BarChart3 className="h-6 w-6 text-white" />
+                  <BarChart3 className="h-6 w-6 text-black" />
                 </div>
               </div>
             </CardContent>
@@ -164,7 +174,7 @@ export default function AnalyticsPage() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <Card className="glass-card neon-glow">
                 <CardHeader>
-                  <CardTitle className="text-white">Energy Consumption Trends</CardTitle>
+                  <CardTitle className="text-black">Energy Consumption Trends</CardTitle>
                   <CardDescription className="text-gray-400">24-hour energy usage pattern</CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -174,7 +184,7 @@ export default function AnalyticsPage() {
 
               <Card className="glass-card neon-glow">
                 <CardHeader>
-                  <CardTitle className="text-white">Temperature Distribution</CardTitle>
+                  <CardTitle className="text-black">Temperature Distribution</CardTitle>
                   <CardDescription className="text-gray-400">Multi-room temperature monitoring</CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -184,7 +194,7 @@ export default function AnalyticsPage() {
 
               <Card className="glass-card neon-glow">
                 <CardHeader>
-                  <CardTitle className="text-white">Occupancy Analysis</CardTitle>
+                  <CardTitle className="text-black">Occupancy Analysis</CardTitle>
                   <CardDescription className="text-gray-400">Current vs capacity utilization</CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -194,7 +204,7 @@ export default function AnalyticsPage() {
 
               <Card className="glass-card neon-glow">
                 <CardHeader>
-                  <CardTitle className="text-white">Efficiency Metrics</CardTitle>
+                  <CardTitle className="text-black">Efficiency Metrics</CardTitle>
                   <CardDescription className="text-gray-400">System performance indicators</CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -206,7 +216,7 @@ export default function AnalyticsPage() {
             {/* Room Performance Table */}
             <Card className="glass-card-strong">
               <CardHeader>
-                <CardTitle className="text-white">Room Performance Overview</CardTitle>
+                <CardTitle className="text-black">Room Performance Overview</CardTitle>
                 <CardDescription className="text-gray-400">
                   Detailed efficiency and cost analysis by room
                 </CardDescription>
@@ -216,7 +226,7 @@ export default function AnalyticsPage() {
                   {roomEfficiency.map((room) => (
                     <div key={room.name} className="glass-card p-4 rounded-lg">
                       <div className="flex items-center justify-between mb-3">
-                        <h3 className="font-medium text-white">{room.name}</h3>
+                        <h3 className="font-medium text-black">{room.name}</h3>
                         <div className="flex items-center gap-2">
                           <Badge
                             variant={
@@ -238,11 +248,11 @@ export default function AnalyticsPage() {
                         </div>
                         <div>
                           <p className="text-sm text-gray-400">Monthly Cost</p>
-                          <p className="text-lg font-bold text-white">${room.cost}</p>
+                          <p className="text-lg font-bold text-black">${room.cost}</p>
                         </div>
                         <div>
                           <p className="text-sm text-gray-400">Status</p>
-                          <p className="text-sm text-white capitalize">{room.trend}</p>
+                          <p className="text-sm text-black capitalize">{room.trend}</p>
                         </div>
                       </div>
                     </div>
@@ -256,7 +266,7 @@ export default function AnalyticsPage() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <Card className="glass-card neon-glow">
                 <CardHeader>
-                  <CardTitle className="text-white">Energy Consumption</CardTitle>
+                  <CardTitle className="text-black">Energy Consumption</CardTitle>
                   <CardDescription className="text-gray-400">Detailed energy usage analysis</CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -266,22 +276,22 @@ export default function AnalyticsPage() {
 
               <Card className="glass-card neon-glow">
                 <CardHeader>
-                  <CardTitle className="text-white">Peak Usage Analysis</CardTitle>
+                  <CardTitle className="text-black">Peak Usage Analysis</CardTitle>
                   <CardDescription className="text-gray-400">Identifying peak consumption periods</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
                     <div className="flex justify-between items-center">
                       <span className="text-gray-400">Peak Hour</span>
-                      <span className="font-bold text-white">2:00 PM - 3:00 PM</span>
+                      <span className="font-bold text-black">2:00 PM - 3:00 PM</span>
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-gray-400">Peak Consumption</span>
-                      <span className="font-bold text-white">25.1 kWh</span>
+                      <span className="font-bold text-black">25.1 kWh</span>
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-gray-400">Off-Peak Average</span>
-                      <span className="font-bold text-white">8.7 kWh</span>
+                      <span className="font-bold text-black">8.7 kWh</span>
                     </div>
                     <div className="flex justify-between items-center text-green-400">
                       <span>Optimization Potential</span>
@@ -297,7 +307,7 @@ export default function AnalyticsPage() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <Card className="glass-card neon-glow">
                 <CardHeader>
-                  <CardTitle className="text-white">Cost Analysis</CardTitle>
+                  <CardTitle className="text-black">Cost Analysis</CardTitle>
                   <CardDescription className="text-gray-400">Financial impact breakdown</CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -307,7 +317,7 @@ export default function AnalyticsPage() {
 
               <Card className="glass-card neon-glow">
                 <CardHeader>
-                  <CardTitle className="text-white">Savings Breakdown</CardTitle>
+                  <CardTitle className="text-black">Savings Breakdown</CardTitle>
                   <CardDescription className="text-gray-400">Sources of cost reduction</CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -315,7 +325,7 @@ export default function AnalyticsPage() {
                     <div className="space-y-2">
                       <div className="flex justify-between items-center">
                         <span className="text-gray-400">HVAC Optimization</span>
-                        <span className="font-medium text-white">45%</span>
+                        <span className="font-medium text-black">45%</span>
                       </div>
                       <Progress value={45} className="h-2 bg-gray-800" />
                     </div>
@@ -323,7 +333,7 @@ export default function AnalyticsPage() {
                     <div className="space-y-2">
                       <div className="flex justify-between items-center">
                         <span className="text-gray-400">Lighting Control</span>
-                        <span className="font-medium text-white">30%</span>
+                        <span className="font-medium text-black">30%</span>
                       </div>
                       <Progress value={30} className="h-2 bg-gray-800" />
                     </div>
@@ -331,7 +341,7 @@ export default function AnalyticsPage() {
                     <div className="space-y-2">
                       <div className="flex justify-between items-center">
                         <span className="text-gray-400">Occupancy Management</span>
-                        <span className="font-medium text-white">25%</span>
+                        <span className="font-medium text-black">25%</span>
                       </div>
                       <Progress value={25} className="h-2 bg-gray-800" />
                     </div>
@@ -345,7 +355,7 @@ export default function AnalyticsPage() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <Card className="glass-card neon-glow">
                 <CardHeader>
-                  <CardTitle className="text-white">Predictive Analytics</CardTitle>
+                  <CardTitle className="text-black">Predictive Analytics</CardTitle>
                   <CardDescription className="text-gray-400">AI-powered consumption forecasting</CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -355,14 +365,14 @@ export default function AnalyticsPage() {
 
               <Card className="glass-card neon-glow">
                 <CardHeader>
-                  <CardTitle className="text-white">Maintenance Predictions</CardTitle>
+                  <CardTitle className="text-black">Maintenance Predictions</CardTitle>
                   <CardDescription className="text-gray-400">Predictive maintenance scheduling</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
                     <div className="glass-card p-3 rounded-lg border-yellow-500/20">
                       <div className="flex justify-between items-center">
-                        <span className="text-white font-medium">HVAC System A1</span>
+                        <span className="text-black font-medium">HVAC System A1</span>
                         <Badge variant="secondary">7 days</Badge>
                       </div>
                       <p className="text-sm text-gray-400 mt-1">Filter replacement recommended</p>
@@ -370,7 +380,7 @@ export default function AnalyticsPage() {
 
                     <div className="glass-card p-3 rounded-lg border-blue-500/20">
                       <div className="flex justify-between items-center">
-                        <span className="text-white font-medium">Lighting Controller B2</span>
+                        <span className="text-black font-medium">Lighting Controller B2</span>
                         <Badge variant="outline">14 days</Badge>
                       </div>
                       <p className="text-sm text-gray-400 mt-1">Calibration due</p>
@@ -378,7 +388,7 @@ export default function AnalyticsPage() {
 
                     <div className="glass-card p-3 rounded-lg border-green-500/20">
                       <div className="flex justify-between items-center">
-                        <span className="text-white font-medium">Temperature Sensors</span>
+                        <span className="text-black font-medium">Temperature Sensors</span>
                         <Badge variant="default">30 days</Badge>
                       </div>
                       <p className="text-sm text-gray-400 mt-1">Battery replacement cycle</p>
